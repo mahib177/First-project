@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carnage | Quantum Quizzes (50 Questions)</title>
+  <link rel="icon" href="assets/carnage-logo.png">
+  <style>
+    :root { 
+      --bg: #faf9f6; 
+      --ink: #2c2825; 
+      --muted: #79736e; 
+      --line: rgba(44, 40, 37, 0.12); 
+      --panel: rgba(255, 255, 255, 0.85); 
+      --cyan: #0f766e; 
+      --violet: #7c3aed; 
+      --lime: #65a30d; 
+      --yellow: #d97706; 
+      --card-bg: linear-gradient(145deg, #ffffff, #f4f4f5);
+      --card-border: rgba(15, 118, 110, 0.15);
+      --card-shadow: 0 20px 55px rgba(0,0,0,0.06);
+    }
+
+    body.dark-theme {
+      --bg: #1c1917; 
+      --ink: #f5f5f4; 
+      --muted: #a8a29e; 
+      --line: rgba(245, 245, 244, 0.1); 
+      --panel: rgba(41, 37, 36, 0.8); 
+      --cyan: #2dd4bf; 
+      --violet: #a78bfa; 
+      --lime: #a3e635; 
+      --yellow: #fbbf24;
+      --card-bg: linear-gradient(145deg, rgba(41,37,36,0.95), rgba(28,25,23,0.9));
+      --card-border: rgba(45, 212, 191, 0.2);
+    }
+
+    * { box-sizing:border-box; } 
+    body { margin:0; color:var(--ink); font-family:Manrope,system-ui,sans-serif; background:var(--bg); padding-bottom:50px; transition:background 0.3s ease, color 0.3s ease; }
+    .wrap { width:min(1180px, calc(100% - 40px)); margin:auto; } 
+    nav { height:82px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); margin-bottom:30px; }
+    .brand { font-size:22px; font-weight:800; text-decoration:none; color:inherit; display:flex; gap:10px; align-items:center; } 
+    .mark{width:150px;height:68px;object-fit:contain;flex:none;display:block}
+    .mark:after{content:"";position:absolute;inset:6px;border:2px solid var(--bg);border-radius:50%}
+
+    .quiz-header { text-align:center; margin-bottom:40px; }
+    .quiz-header h1 { font-size:36px; font-weight:800; margin-bottom:10px; }
+    .quiz-header p { color:var(--muted); font-size:16px; }
+
+    .q-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:24px; margin-bottom:20px; box-shadow:var(--card-shadow); }
+    .q-badge { display:inline-block; font-family:'DM Mono'; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; margin-bottom:12px; text-transform:uppercase; }
+    .badge-easy { background:#e0f2fe; color:#0369a1; }
+    .badge-hard { background:#fef3c7; color:#b45309; }
+
+    .q-title { font-size:18px; font-weight:700; margin-bottom:16px; }
+    .options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media(max-width: 600px) { .options { grid-template-columns:1fr; } }
+    
+    .opt-btn { background:var(--panel); border:1px solid var(--line); color:var(--ink); padding:12px 16px; border-radius:10px; text-align:left; font-weight:600; cursor:pointer; transition:0.2s; }
+    .opt-btn:hover { border-color:var(--cyan); }
+    .opt-btn.correct { background:#dcfce7 !important; border-color:#22c55e !important; color:#15803d !important; }
+    .opt-btn.wrong { background:#fee2e2 !important; border-color:#ef4444 !important; color:#b91c1c !important; }
+
+    .score-board { position:sticky; top:20px; background:var(--cyan); color:#fff; padding:15px; border-radius:12px; text-align:center; font-weight:800; margin-bottom:30px; z-index:100; box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+  </style>
+
+<style>
+.quiz-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:24px;align-items:start}
+.quiz-sidebar{position:sticky;top:18px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 10px 30px rgba(0,0,0,.05)}
+.quiz-sidebar h2{font-size:12px;letter-spacing:.08em;color:var(--muted);margin:2px 8px 10px}
+.quiz-nav{display:grid;gap:4px;position:static;justify-content:stretch;margin:0;padding:0;border:0;background:transparent;box-shadow:none;backdrop-filter:none}
+.quiz-nav button{
+width:100%;text-align:left;background:transparent;color:var(--ink);border:1px solid transparent;padding:10px 12px;border-radius:10px;
+font-weight:700;cursor:pointer;transition:.2s;
+}
+.quiz-nav button:hover{background:rgba(15,118,110,.08);border-color:var(--line)}
+.shuffle-btn-quantum{background:linear-gradient(135deg,#06b6d4,#7c3aed)!important;color:white!important;box-shadow:0 6px 18px rgba(124,58,237,.30)!important;}
+.quiz-nav button.active{background:rgba(15,118,110,.12);color:var(--cyan);border-color:rgba(15,118,110,.22);outline:none}
+.quiz-nav .shuffle-btn-quantum{margin-top:8px;text-align:center}
+@media(max-width:720px){.quiz-layout{grid-template-columns:1fr;gap:14px}.quiz-sidebar{position:static}.quiz-sidebar h2{margin-bottom:8px}.quiz-nav{display:flex;overflow-x:auto;flex-wrap:nowrap;padding:2px}.quiz-nav button{width:auto;white-space:nowrap}.quiz-nav .shuffle-btn-quantum{margin-top:0}}
+<style>.profile-chip{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:inherit;background:var(--panel)}.avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;font-weight:800}.quiz-nav button.active{outline:2px solid var(--cyan);outline-offset:2px}</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a href="index.html" class="brand"><img class="mark" src="assets/carnage-logo.png" alt="Carnage"></a>
+      <div style="display:flex;align-items:center;gap:10px"><a href="index.html" style="color:var(--cyan);text-decoration:none;font-weight:700">← Home</a><a id="quizProfile" href="index.html" class="profile-chip" hidden><span class="avatar" id="quizAvatar">Q</span><span id="quizProfileName">Profile</span></a></div>
+    </nav>
+
+    <div class="score-board">
+      Current Score: <span id="score">0</span> / 70
+    </div>
+
+    <div class="quiz-header">
+      <h1>Quantum Quick Quizzes</h1>
+      <p>70 Questions to test and master your Quantum Computing knowledge.</p>
+    </div>
+
+    <div class="quiz-layout">
+      <aside class="quiz-sidebar" aria-label="Quiz categories">
+        <h2>QUIZ CATEGORIES</h2>
+        <div class="quiz-nav" id="quizTopics" aria-label="Quiz topics"></div>
+      </aside>
+      <div id="quiz-container" aria-live="polite"></div>
+    </div>
+
+  </div>
+
+  <script>
+
+    let questions = [];
+    let currentScore = 0;
+    let answered = new Set();
+    const quizAttemptId = window.crypto?.randomUUID?.() || `quiz-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    document.body.classList.toggle('dark-theme', localStorage.getItem('qbytes-theme') === 'dark');
+
+    async function loadQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '<div class="q-card"><strong>Loading quiz…</strong><p style="color:var(--muted)">Connecting to Carnage backend.</p></div>';
+
+      try {
+        const response = await fetch('/api/quizzes');
+        if (!response.ok) throw new Error('Quiz API unavailable');
+        const data = await response.json();
+        questions = data.questions || [];
+        if (!questions.length) throw new Error('No questions returned');
+        renderQuiz(); setTimeout(()=>renderTopicNav(),0);
+      } catch (error) {
+        console.error(error);
+        // The original question set is preserved below in the fallback block.
+        questions = FALLBACK_QUESTIONS.map((q, i) => ({id:q.id ?? i+1, ...q}));
+        renderQuiz();
+        const note = document.createElement('div');
+        note.className = 'q-card';
+        note.innerHTML = '<strong>Offline mode</strong><p style="color:var(--muted)">Backend unavailable, so the built-in 50 questions are being used.</p>';
+        container.prepend(note);
+      }
+    }
+
+    
+let currentView=[];
+
+function loadSection(topic){currentView=topic==='All'?questions:questions.filter(q=>q.topic===topic);renderSubset(currentView);document.querySelectorAll('#quizTopics button').forEach(b=>b.classList.toggle('active',b.dataset.topic===topic));}
+function shuffleQuestions(){currentView=[...questions].sort(()=>Math.random()-0.5).slice(0,10);renderSubset(currentView);}
+
+function renderSubset(list){
+ const container=document.getElementById('quiz-container');
+ container.innerHTML='';
+ list.forEach((q,idx)=>{
+   const realIndex=questions.indexOf(q);
+   const card=document.createElement('div');
+   card.className='q-card';
+   const badge=document.createElement('span');
+   badge.className=`q-badge ${q.diff === 'easy' ? 'badge-easy' : 'badge-hard'}`;
+   badge.textContent=q.diff === 'easy' ? 'Basic / Moderate' : 'Medium / Hard';
+   const title=document.createElement('div');
+   title.className='q-title';
+   title.textContent=q.q.replace(/^\s*\d+[.)-]?\s*/, '').replace(/^Q\d+[.:\-]?\s*/, '');
+   const optionsDiv=document.createElement('div');
+   optionsDiv.className='options';
+   q.options.forEach((opt,oIdx)=>{
+      const btn=document.createElement('button');
+      btn.className='opt-btn';
+      btn.textContent=opt;
+      btn.onclick=()=>selectOption(btn,realIndex,oIdx,q.ans,optionsDiv);
+      optionsDiv.appendChild(btn);
+   });
+   card.append(badge,title,optionsDiv);
+   container.appendChild(card);
+ });
+}
+
+function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = "";
+      questions.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = "q-card";
+
+        const badge = document.createElement('span');
+        badge.className = `q-badge ${q.diff === 'easy' ? 'badge-easy' : 'badge-hard'}`;
+        badge.textContent = q.diff === 'easy' ? 'Basic / Moderate' : 'Medium / Hard';
+
+        const title = document.createElement('div');
+        title.className = "q-title";
+        title.textContent = q.q;
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = "options";
+
+        q.options.forEach((opt, oIdx) => {
+          const btn = document.createElement('button');
+          btn.className = "opt-btn";
+          btn.type = "button";
+          btn.textContent = opt;
+          btn.onclick = () => selectOption(btn, idx, oIdx, q.ans, optionsDiv);
+          optionsDiv.appendChild(btn);
+        });
+
+        card.appendChild(badge);
+        card.appendChild(title);
+        card.appendChild(optionsDiv);
+        container.appendChild(card);
+      });
+    }
+
+function renderTopicNav(){const topics=['All',...new Set(questions.map(q=>q.topic).filter(Boolean))];const box=document.getElementById('quizTopics');box.innerHTML=topics.map(t=>`<button data-topic="${t}">${t}</button>`).join('')+`<button class="shuffle-btn-quantum" data-shuffle="1">🔀 Shuffle</button>`;box.querySelectorAll('button').forEach(b=>b.onclick=()=>b.dataset.shuffle?shuffleQuestions():loadSection(b.dataset.topic));loadSection('All');}
+function initQuizProfile(){const email=localStorage.getItem('qbytes-user-email'),el=document.getElementById('quizProfile');if(!email||!el)return;el.hidden=false;const name=email.split('@')[0];document.getElementById('quizProfileName').textContent=name;document.getElementById('quizAvatar').textContent=(name[0]||'Q').toUpperCase();}initQuizProfile();
+
+    async function selectOption(btn, qIdx, selectedIdx, correctIdx, parentDiv) {
+      if (answered.has(qIdx)) return;
+      answered.add(qIdx);
+
+      const btns = parentDiv.querySelectorAll('.opt-btn');
+      btns.forEach(b => b.disabled = true);
+
+      const isCorrect = selectedIdx === correctIdx;
+      if (isCorrect) {
+        btn.classList.add('correct');
+        currentScore++;
+        document.getElementById('score').textContent = currentScore;
+      } else {
+        btn.classList.add('wrong');
+        btns[correctIdx].classList.add('correct');
+      }
+
+      // Save account-scoped progress when the learner is signed in.
+      try {
+        const token = localStorage.getItem('qbytes-session');
+        if (token) await fetch('/api/quiz/answer', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json','Authorization':`Bearer ${token}`},
+          body: JSON.stringify({
+            questionId: questions[qIdx].id ?? qIdx + 1,
+            selectedIndex: selectedIdx,
+            attemptId: quizAttemptId
+          })
+        });
+      } catch (_) {}
+
+      if (answered.size === questions.length) {
+        try {
+          const token = localStorage.getItem('qbytes-session');
+          if (token) await fetch('/api/quiz/submit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Authorization':`Bearer ${localStorage.getItem('qbytes-session')||''}`},
+            body: JSON.stringify({score: currentScore, total: questions.length, attemptId: quizAttemptId})
+          });
+        } catch (_) {}
+      }
+    }
+
+    // Original 50 questions retained as an offline fallback.
+    const FALLBACK_QUESTIONS = [
+
+      // BASIC TO MODERATE (1 to 20)
+      { q: "What is the fundamental unit of quantum information?", options: ["Bit", "Qubit", "Byte", "Atom"], ans: 1, diff: "easy" },
+      { q: "Which property allows a qubit to exist in multiple states at once?", options: ["Entanglement", "Superposition", "Decoherence", "Teleportation"], ans: 1, diff: "easy" },
+      { q: "What does a Hadamard (H) gate do to |0⟩?", options: ["Flips to |1⟩", "Creates (|0⟩ + |1⟩)/√2", "Rotates by 90 degrees", "Measures it"], ans: 1, diff: "easy" },
+      { q: "Which gate acts as a quantum NOT gate?", options: ["Pauli-X", "Pauli-Z", "Hadamard", "CNOT"], ans: 0, diff: "easy" },
+      { q: "What happens when a quantum state is measured?", options: ["It doubles", "It collapses to a classical state", "It entangles further", "Nothing"], ans: 1, diff: "easy" },
+      { q: "A Pauli-Z gate performs what action on |1⟩?", options: ["Flips bit to |0⟩", "Changes sign to -|1⟩", "Adds complex phase i", "No change"], ans: 1, diff: "easy" },
+      { q: "How many classical outcomes can a single qubit measurement yield?", options: ["1", "2", "4", "Infinite"], ans: 1, diff: "easy" },
+      { q: "What is Quantum Entanglement?", options: ["Strong correlation between qubits", "Classical interference", "Noise in quantum hardware", "Fast computation"], ans: 0, diff: "easy" },
+      { q: "Which gate takes 2 qubits as input?", options: ["Hadamard", "Pauli-Y", "CNOT", "Phase S"], ans: 2, diff: "easy" },
+      { q: "In a CNOT gate, what happens if the control qubit is |0⟩?", options: ["Target is flipped", "Target is unchanged", "Target is measured", "Both flip"], ans: 1, diff: "easy" },
+      { q: "What sphere is used to visually represent a single qubit state?", options: ["Bloch Sphere", "Poincaré Sphere", "Riemann Sphere", "Fermi Sphere"], ans: 0, diff: "easy" },
+      { q: "What is the state vector for a qubit in equal superposition?", options: ["|0⟩ + |1⟩", "(|0⟩ + |1⟩)/√2", "|0⟩ - |1⟩", "(|0⟩ - |1⟩)/2"], ans: 1, diff: "easy" },
+      { q: "What is quantum decoherence?", options: ["Qubit creation", "Loss of quantum information due to noise", "Speeding up algorithms", "Gate execution"], ans: 1, diff: "easy" },
+      { q: "Which algorithm finds items in an unstructured database?", options: ["Shor's", "Grover's", "Deutsch-Jozsa", "VQE"], ans: 1, diff: "easy" },
+      { q: "Shor’s algorithm is famous for solving what problem efficiently?", options: ["Database Search", "Integer Factorization", "Sorting", "Graph Coloring"], ans: 1, diff: "easy" },
+      { q: "What is a Bell State?", options: ["Maximally entangled 2-qubit state", "Single qubit state", "3-qubit state", "Unentangled state"], ans: 0, diff: "easy" },
+      { q: "What is the matrix representation of Pauli-X?", options: ["[[0,1],[1,0]]", "[[1,0],[0,1]]", "[[1,0],[0,-1]]", "[[0,-i],[i,0]]"], ans: 0, diff: "easy" },
+      { q: "What is a Toffoli gate?", options: ["Single control NOT", "Double control NOT (CCNOT)", "Phase gate", "3-qubit SWAP"], ans: 1, diff: "easy" },
+      { q: "Which physical system can act as a hardware qubit?", options: ["Superconducting loop", "Trapped ion", "Photon polarization", "All of the above"], ans: 3, diff: "easy" },
+      { q: "What unit measures quantum computational power combining qubit count and quality?", options: ["FLOPS", "Quantum Volume", "GHz", "Q-Factor"], ans: 1, diff: "easy" },
+
+      // MEDIUM TO HARD (21 to 50)
+      { q: "What is the inner product of two orthogonal quantum states?", options: ["1", "0", "1/√2", "-1"], ans: 1, diff: "hard" },
+      { q: "The T gate is equivalent to the square root of which gate?", options: ["Pauli-X", "S Gate", "Hadamard", "Pauli-Z"], ans: 1, diff: "hard" },
+      { q: "How many complex amplitudes describe an n-qubit system state?", options: ["n", "2n", "2^n", "n^2"], ans: 2, diff: "hard" },
+      { q: "In Grover’s Algorithm, what does the Oracle operator do to the target state?", options: ["Flips its phase", "Flips its bit", "Measures it", "Erases it"], ans: 0, diff: "hard" },
+      { q: "What is the speedup of Grover's Algorithm compared to classical search?", options: ["Exponential (2^N)", "Quadratic (√N)", "Linear (N)", "Polynomial"], ans: 1, diff: "hard" },
+      { q: "Deutsch-Jozsa algorithm determines if a function is what?", options: ["Even or Odd", "Constant or Balanced", "Linear or Quadratic", "Prime or Composite"], ans: 1, diff: "hard" },
+      { q: "Quantum Fourier Transform (QFT) scales with how many gate operations for n qubits?", options: ["O(n^2)", "O(2^n)", "O(n log n)", "O(n^3)"], ans: 0, diff: "hard" },
+      { q: "What key property prevents cloning an unknown arbitrary quantum state?", options: ["Heisenberg Uncertainty", "No-Cloning Theorem", "Pauli Exclusion", "Bell Inequality"], ans: 1, diff: "hard" },
+      { q: "Applying H gate twice to any single-qubit state results in what?", options: ["Bit flip", "Phase flip", "Original state (Identity)", "Superposition"], ans: 2, diff: "hard" },
+      { q: "What is the Phase Kickback mechanism in quantum circuits?", options: ["Target phase transfers to control qubit", "Control flips target", "Decoherence speedup", "Error accumulation"], ans: 0, diff: "hard" },
+      { q: "Quantum Phase Estimation (QPE) estimates the eigenvalue phase of what operator?", options: ["Hermitian", "Unitary", "Symmetric", "Diagonal"], ans: 1, diff: "hard" },
+      { q: "What is the Fredkin Gate also known as?", options: ["CCNOT", "CSWAP", "Controlled-H", "Root-SWAP"], ans: 1, diff: "hard" },
+      { q: "Which noise model causes loss of energy in a qubit (relaxation to |0⟩)?", options: ["Dephasing (T2)", "Amplitude Damping (T1)", "Depolarizing", "Bit Flip"], ans: 1, diff: "hard" },
+      { q: "What theorem states that quantum mechanics cannot be replaced by local hidden variables?", options: ["Shor's Theorem", "Bell's Theorem", "Grover's Theorem", "Euler's Theorem"], ans: 1, diff: "hard" },
+      { q: "What is the surface code used for in quantum computing?", options: ["Quantum Error Correction", "Database search", "Simulating molecules", "Compiler optimization"], ans: 0, diff: "hard" },
+      { q: "VQE stands for what variational NISQ algorithm?", options: ["Variational Quantum Eigensolver", "Variable Quantum Estimator", "Vector Quantum Execution", "Visual Quantum Engine"], ans: 0, diff: "hard" },
+      { q: "What classical optimization problem is QAOA designed to solve?", options: ["Combinatorial Optimization", "Matrix Inversion", "Linear Regression", "Sorting"], ans: 0, diff: "hard" },
+      { q: "In Solovay-Kitaev theorem, any single qubit gate can be approximated using a finite set with what overhead?", options: ["Polylogarithmic", "Exponential", "Linear", "Quadratic"], ans: 0, diff: "hard" },
+      { q: "What is the state |Φ+⟩ in Bell Basis?", options: ["(|00⟩ + |11⟩)/√2", "(|01⟩ + |10⟩)/√2", "(|00⟩ - |11⟩)/√2", "(|01⟩ - |10⟩)/√2"], ans: 0, diff: "hard" },
+      { q: "What is the output of H-Z-H sequence applied on |0⟩?", options: ["|0⟩", "|1⟩", "-|1⟩", "(|0⟩+|1⟩)/√2"], ans: 1, diff: "hard" },
+      { q: "What is the purpose of the Diffuser in Grover’s Algorithm?", options: ["Inversion about the mean", "Phase shift target", "Measure state", "Initialize |0⟩"], ans: 0, diff: "hard" },
+      { q: "Quantum Supremacy / Advantage refers to what milestone?", options: ["Quantum PC in every home", "Solving a task impossible/intractable classically", "100% error free qubits", "Breaking RSA-4096"], ans: 1, diff: "hard" },
+      { q: "Which topological quasiparticle is proposed for fault-tolerant Majorana qubits?", options: ["Anyons", "Fermions", "Bosons", "Gluons"], ans: 0, diff: "hard" },
+      { q: "What matrix satisfies U * U^† = I for all valid quantum gate operators?", options: ["Hermitian Matrix", "Unitary Matrix", "Singular Matrix", "Orthogonal Matrix"], ans: 1, diff: "hard" },
+      { q: "What quantum state tomography technique is used to do what?", options: ["Reconstruct unknown quantum state", "Measure temperature", "Cool down qubits", "Calibrate lasers"], ans: 0, diff: "hard" },
+      { q: "What quantum distribution protocol is BB84?", options: ["Quantum Key Distribution (QKD)", "Quantum Fourier Transform", "Quantum Phase Estimation", "Error Correction"], ans: 0, diff: "hard" },
+      { q: "If an operator A is Hermitian, what is true about its eigenvalues?", options: ["They are complex", "They are purely real", "They are zero", "They are negative"], ans: 1, diff: "hard" },
+      { q: "How many classical bits are required to teleport 1 qubit state using Quantum Teleportation?", options: ["1 bit", "2 bits", "0 bits", "4 bits"], ans: 1, diff: "hard" },
+      { q: "What is the fidelity of two identical quantum states?", options: ["0", "1", "0.5", "Infinity"], ans: 1, diff: "hard" },
+      { q: "What type of quantum compiler optimizes quantum circuits for specific hardware topologies?", options: ["Transpiler", "Interpreter", "Decompiler", "Linker"], ans: 0, diff: "hard" }
+    ];
+
+    loadQuiz();
+  </script>
+</body>
+</html>

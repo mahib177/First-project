@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carnage | Quantum Learning, Made Visual</title>
+  <link rel="icon" href="assets/carnage-logo.png">
+  <style>
+    :root { 
+      --bg: #faf9f6; 
+      --ink: #2c2825; 
+      --muted: #79736e; 
+      --line: rgba(44, 40, 37, 0.12); 
+      --panel: rgba(255, 255, 255, 0.85); 
+      
+      --cyan: #0f766e; 
+      --violet: #7c3aed; 
+      --lime: #65a30d; 
+      --yellow: #d97706; 
+
+      --glow1: #fcd34d; 
+      --glow2: #5eead4; 
+      --card-bg: linear-gradient(145deg, #ffffff, #f4f4f5);
+      --card-border: rgba(15, 118, 110, 0.15);
+      --card-shadow: 0 20px 55px rgba(0,0,0,0.06);
+      --circuit-bg: rgba(240, 242, 245, 0.8);
+      --wire: #cbd5e1;
+      
+      --chat-bg: #ffffff;
+      --chat-border: #e5e7eb;
+      --bot-bubble: #f3f4f6;
+      --bot-text: #374151;
+      --user-bubble: #ccfbf1;
+      --user-text: #115e59;
+      --input-bg: #ffffff;
+      --input-border: #d1d5db;
+      --tag-bg: #f3f4f6;
+      --tag-text: #4b5563;
+      --run-bg: #e0f2fe;
+      --run-text: #0369a1;
+      --btn-primary-bg: #0f766e;
+      --btn-primary-text: #ffffff;
+      --control-dot: #7c3aed;
+    }
+
+    body.dark-theme {
+      --bg: #1c1917; 
+      --ink: #f5f5f4; 
+      --muted: #a8a29e; 
+      --line: rgba(245, 245, 244, 0.1); 
+      --panel: rgba(41, 37, 36, 0.8); 
+      
+      --cyan: #2dd4bf; 
+      --violet: #a78bfa; 
+      --lime: #a3e635; 
+      --yellow: #fbbf24;
+
+      --glow1: #0f766e;
+      --glow2: #4c1d95;
+      --card-bg: linear-gradient(145deg, rgba(41,37,36,0.95), rgba(28,25,23,0.9));
+      --card-border: rgba(45, 212, 191, 0.2);
+      --card-shadow: 0 25px 65px rgba(0,0,0,0.5);
+      --circuit-bg: rgba(0,0,0,0.3);
+      --wire: #57534e;
+      
+      --chat-bg: #292524;
+      --chat-border: #44403c;
+      --bot-bubble: #44403c;
+      --bot-text: #f5f5f4;
+      --user-bubble: #134e4a;
+      --user-text: #ccfbf1;
+      --input-bg: rgba(0,0,0,0.2);
+      --input-border: #57534e;
+      --tag-bg: rgba(255,255,255,0.08);
+      --tag-text: #d6d3d1;
+      --run-bg: #0f766e;
+      --run-text: #ccfbf1;
+      --btn-primary-bg: #2dd4bf;
+      --btn-primary-text: #134e4a;
+      --control-dot: #a78bfa;
+    }
+
+    * { box-sizing:border-box; } 
+    body { margin:0; color:var(--ink); font-family:Manrope,system-ui,sans-serif; background:var(--bg); overflow-x:hidden; transition: background 0.3s ease, color 0.3s ease; }
+    body:before, body:after { content:""; position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:-1; transition: 0.3s ease; } 
+    body:before{width:430px;height:430px;background:var(--glow1);top:-150px;right:-150px;opacity:.25} 
+    body:after{width:360px;height:360px;background:var(--glow2);bottom:-130px;left:-160px;opacity:.2}
+    
+    .wrap { width:min(1180px, calc(100% - 40px)); margin:auto; } 
+    nav { height:82px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { font-size:22px; font-weight:800; letter-spacing:-1px; display:flex; gap:10px; align-items:center; } 
+    .mark{width:150px;height:68px;object-fit:contain;flex:none;display:block}
+    .brand .mark{width:150px;height:68px}
+    .mark:after{content:"";position:absolute;inset:6px;border:2px solid var(--bg);border-radius:50%}
+    .navlinks { display:flex; gap:30px; align-items:center; color:var(--muted); font-size:14px; font-weight: 500; } 
+    .navlinks a { color:inherit; text-decoration:none; transition: color 0.2s;} 
+    .navlinks a:hover { color:var(--cyan); }
+    button { font:inherit; cursor:pointer; border:0; } 
+    
+    .primary, .auth-btn { font-weight:700; background:var(--btn-primary-bg); color:var(--btn-primary-text); padding:11px 18px; border-radius:10px; transition:.2s; text-decoration:none; display:inline-block; } 
+    .primary:hover, .auth-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(15, 118, 110, 0.25); }
+    .secondary { background:transparent; color:var(--ink); border:1px solid var(--line); padding:11px 18px; border-radius:10px; font-weight:700; transition:.2s; text-decoration:none; display:inline-block; }
+    .secondary:hover { border-color:var(--cyan); }
+    
+    .hero { min-height:550px; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:50px; padding:74px 0 46px; } 
+    .eyebrow { color:var(--cyan); font:600 12px 'DM Mono'; letter-spacing:1.3px; text-transform:uppercase; display:flex;gap:8px;align-items:center;}
+    .pulse{width:8px;height:8px;background:var(--lime);border-radius:50%;box-shadow:0 0 12px var(--lime)}
+    h1 { font-size:clamp(42px,5vw,68px); line-height:1.08; letter-spacing:-2.5px; margin:18px 0 20px; font-weight:800; } 
+    h1 span { color:var(--cyan); } 
+    .hero p { color:var(--muted); max-width:550px; line-height:1.7; font-size:16px; font-weight:500;} 
+    .hero-actions { display:flex;gap:14px;margin-top:30px;align-items:center;}
+    .trust { display:flex; gap:30px; margin-top:52px; }
+    .trust div { border-left:1px solid var(--line); padding-left:15px; }
+    .trust strong { display:block; font-size:18px; color:var(--ink); }
+    .trust span { color:var(--muted); font-size:12px; }
+    
+    .sim-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:20px; padding:20px; box-shadow:var(--card-shadow); position:relative; overflow:hidden; transition:0.3s ease; }
+    .sim-card:before{content:"";position:absolute;width:200px;height:200px;border:1px solid var(--card-border);border-radius:50%;top:-110px;right:-80px}
+    .card-top { display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted); font-weight:600;}
+    .live{color:var(--lime);font:600 11px 'DM Mono';}
+    .lesson-title{font-size:20px;font-weight:800;margin:22px 0 6px}
+    .tiny{color:var(--muted);font-size:13px; font-weight:500;}
+    
+    .circuit { margin:28px 0 18px; position:relative; height:150px; background:var(--circuit-bg); border-radius:12px; padding:18px 20px; transition:0.3s; }
+    .wire { height:2px; background:var(--wire); position:absolute; left:56px; right:25px; transition:0.3s;}
+    .w1{top:45px} .w2{top:103px}
+    .q { position:absolute; left:14px; color:var(--muted); font:600 12px 'DM Mono'; }
+    .q1{top:37px} .q2{top:95px}
+    .gate { position:absolute; width:42px; height:42px; display:grid; place-items:center; border-radius:8px; top:25px; color:#fff; font:bold 16px 'DM Mono'; box-shadow:0 4px 10px rgba(0,0,0,0.1)}
+    .h{left:94px; background:var(--cyan)}
+    .x{left:210px; background:var(--violet)}
+    .measure{left:330px; border:2px solid var(--lime); color:var(--lime); background:var(--bg); top:83px}
+    .control{position:absolute; left:230px; top:98px; width:12px; height:12px; background:var(--control-dot); border-radius:50%; box-shadow:0 -42px 0 -2px var(--control-dot)}
+    .control:after{content:""; position:absolute; left:5px; bottom:7px; width:2px; height:43px; background:var(--control-dot)}
+    .run-row{display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:15px}
+    .run{background:var(--run-bg); color:var(--run-text); padding:9px 14px; border-radius:8px; font-size:13px; font-weight:700; transition:0.2s;}
+    .run:hover { opacity:0.8; }
+    .outcome{font:600 13px 'DM Mono'; color:var(--lime)}
+    .result { display:none; margin-top:12px; color:var(--lime); font:500 12px 'DM Mono'; }
+    
+    section { padding:70px 0; }
+    .section-label{font:600 12px 'DM Mono'; letter-spacing:1px; color:var(--cyan); text-transform:uppercase}
+    .section-head{display:flex; justify-content:space-between; align-items:end; margin-bottom:28px}
+    .section-head h2{font-size:32px; letter-spacing:-1.2px; margin:9px 0 0; font-weight:800;}
+    .section-head p{max-width:390px; color:var(--muted); font-size:15px; line-height:1.6; margin:0; font-weight:500;}
+    
+    .path-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    .path{background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:22px; min-height:215px; transition:.25s; box-shadow:0 4px 15px rgba(0,0,0,0.02);}
+    .path:hover{transform:translateY(-5px); border-color:var(--cyan); box-shadow:0 10px 30px rgba(0,0,0,0.05);}
+    .path-num{font:600 12px 'DM Mono'; color:var(--cyan)}
+    .path h3{font-size:19px; margin:45px 0 10px; font-weight:700;}
+    .path p{font-size:14px; line-height:1.6; color:var(--muted); margin:0; font-weight:500;}
+    .beginner-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .beginner-path{min-height:0;}
+    .beginner-path h3{margin:14px 0 8px;}
+    .beginner-path a{display:inline-block;margin-top:15px;color:var(--cyan);font-weight:800;font-size:13px;text-decoration:none}
+    .beginner-path a:hover{text-decoration:underline}
+    @media(max-width:760px){.beginner-grid{grid-template-columns:1fr}}
+    .tag{display:inline-block; margin-top:17px; padding:5px 10px; border-radius:6px; background:var(--tag-bg); color:var(--tag-text); font:600 11px 'DM Mono'}
+    
+    .doctor-box { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:32px; box-shadow:var(--card-shadow); transition:0.3s; }
+    .doctor-box h2 { font-size:32px; letter-spacing:-1.2px; margin:10px 0; font-weight:800;}
+    .doctor-box p { color:var(--muted); line-height:1.7; font-weight:500; font-size:15px;}
+    
+    .cta { text-align:center; padding:85px 0 95px; }
+    .cta h2{font-size:40px; letter-spacing:-1.5px; margin:0 0 13px; font-weight:800;}
+    .cta p{color:var(--muted); margin:0 0 24px; font-size:16px; font-weight:500;}
+    .footer{border-top:1px solid var(--line); padding:30px 0; color:var(--muted); font-size:13px; font-weight:500; display:flex; justify-content:space-between}
+    
+    .theme-toggle { width:42px; height:42px; border-radius:11px; display:grid; place-items:center; background:var(--input-bg); color:var(--ink); border:1px solid var(--line); font-size:18px; transition:.2s; }
+    .theme-toggle:hover { border-color:var(--cyan); transform:translateY(-2px); }
+    .auth-actions { display:flex; align-items:center; gap:12px; }
+    
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; padding:20px; z-index:1000; }
+    .modal-backdrop.open { display:flex; }
+    .auth-modal { width:min(430px,100%); background:var(--card-bg); color:var(--ink); border:1px solid var(--card-border); border-radius:20px; padding:32px; box-shadow:0 30px 90px rgba(0,0,0,.2); position:relative; animation:modalIn .2s ease; }
+    @keyframes modalIn { from {opacity:0; transform:translateY(10px) scale(.98);} to {opacity:1; transform:translateY(0) scale(1);} }
+    .auth-close { position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:50%; background:var(--circuit-bg); color:var(--muted); font-size:20px; border:none; cursor:pointer; }
+    .auth-logo { width:58px; height:58px; object-fit:contain; margin-bottom:17px; display:block; }
+    .auth-modal h2 { margin:0; font-size:26px; letter-spacing:-1px; font-weight:800; }
+    .auth-subtitle { margin:8px 0 24px; color:var(--muted); font-size:14px; line-height:1.55; font-weight:500; }
+    .oauth-btn { width:100%; min-height:48px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--ink); border-radius:10px; display:flex; align-items:center; justify-content:center; gap:11px; font-weight:700; margin-top:10px; transition:.2s; cursor:pointer;}
+    .oauth-btn:hover { border-color:var(--cyan); }
+    .oauth-icon { width:20px; height:20px; display:grid; place-items:center; font-size:16px; font-weight:900; }
+    .google-icon { font-family:Arial,sans-serif; background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 0 50%,#fbbc05 0 75%,#ea4335 0); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .auth-divider { display:flex; align-items:center; gap:10px; margin:24px 0 16px; color:var(--muted); font-size:11px; font-weight:700;}
+    .auth-divider:before, .auth-divider:after { content:""; flex:1; height:1px; background:var(--line); }
+    .email-input { width:100%; height:48px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--ink); border-radius:10px; padding:0 15px; outline:none; font:500 14px Manrope,sans-serif; }
+    .email-input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(15, 118, 110, 0.15); }
+    .email-submit { width:100%; margin-top:12px; min-height:48px; border-radius:10px; background:var(--ink); color:var(--bg); font-weight:800; cursor:pointer; border:none; transition:0.2s;}
+    .email-submit:hover { opacity:0.9; transform:translateY(-1px); }
+    .auth-note { text-align:center; margin:18px 0 0; color:var(--muted); font-size:11px; font-weight:500; line-height:1.5; }
+    .ai-btn { background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#fff; border:0; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer; transition:.2s; }
+    .ai-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(15,118,110,.25); }
+    .ai-modal { width:min(620px,100%); background:var(--card-bg); color:var(--ink); border:1px solid var(--card-border); border-radius:20px; padding:24px; box-shadow:0 30px 90px rgba(0,0,0,.3); position:relative; }
+    .ai-modal h2 { margin:0 0 6px; }
+    .ai-modal p { color:var(--muted); margin:0 0 16px; font-size:13px; }
+    .ai-messages { height:300px; overflow:auto; border:1px solid var(--line); border-radius:12px; padding:14px; background:var(--panel); }
+    .ai-message { white-space:pre-wrap; line-height:1.55; font-size:14px; margin-bottom:12px; }
+    .ai-message.user { color:var(--cyan); font-weight:700; }
+    .ai-message.assistant { color:var(--ink); }
+    .ai-form { display:flex; gap:10px; margin-top:12px; }
+    .ai-input { flex:1; min-width:0; height:46px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--ink); border-radius:10px; padding:0 13px; outline:none; }
+    .ai-input:focus { border-color:var(--cyan); }
+
+    .learning-card { cursor: pointer; user-select: none; }
+    .learning-card:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+    .learning-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.58); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; z-index:1100; }
+    .learning-modal-backdrop.open { display:flex; }
+    .learning-modal { width:min(980px, 100%); max-height:min(86vh, 850px); overflow:auto; background:var(--card-bg); color:var(--ink); border:1px solid var(--card-border); border-radius:22px; padding:30px; box-shadow:0 35px 100px rgba(0,0,0,.35); position:relative; animation:learningModalIn .22s ease; }
+    @keyframes learningModalIn { from { opacity:0; transform:translateY(16px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .learning-close { position:absolute; top:16px; right:16px; width:38px; height:38px; border-radius:50%; background:var(--circuit-bg); color:var(--ink); font-size:23px; line-height:1; border:1px solid var(--line); }
+    .learning-close:hover { border-color:var(--cyan); color:var(--cyan); }
+    .learning-modal-header { padding-right:48px; margin-bottom:24px; }
+    .learning-modal-header .section-label { display:block; margin-bottom:8px; }
+    .learning-modal-header h2 { margin:0 0 8px; font-size:clamp(28px,4vw,40px); letter-spacing:-1.3px; }
+    .learning-modal-header p { margin:0; color:var(--muted); line-height:1.65; font-size:14px; }
+    .info-section { border:1px solid var(--line); border-radius:16px; padding:20px; background:var(--panel); margin-top:16px; }
+    .info-section h3 { margin:0 0 6px; font-size:21px; }
+    .info-section > p { color:var(--muted); margin:0 0 16px; font-size:13px; line-height:1.6; }
+    .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .info-grid.four { grid-template-columns:repeat(2,1fr); }
+    .info-card { border:1px solid var(--line); border-radius:12px; padding:15px; background:var(--card-bg); transition:.2s; }
+    .info-card:hover { transform:translateY(-2px); border-color:var(--cyan); }
+    .info-card .gate-symbol { width:42px; height:42px; display:grid; place-items:center; border-radius:10px; margin-bottom:10px; background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#fff; font:bold 15px 'DM Mono'; }
+    .info-card h4 { margin:0 0 6px; font-size:16px; }
+    .info-card p { margin:0; color:var(--muted); font-size:12.5px; line-height:1.6; }
+    .algorithm-card .gate-symbol { font-size:13px; }
+    .learning-modal::-webkit-scrollbar { width:9px; }
+    .learning-modal::-webkit-scrollbar-thumb { background:var(--line); border-radius:10px; }
+
+
+    .flashcard-feature { padding-top:72px; }
+    .flashcard-feature .section-head { margin-bottom:22px; }
+    .flashcard-showcase { display:grid; grid-template-columns:minmax(280px,.9fr) 1.1fr; gap:36px; align-items:center; padding:32px; color:inherit; text-decoration:none; border:1px solid var(--line); border-radius:20px; background:var(--panel); box-shadow:var(--card-shadow); transition:.25s; }
+    .flashcard-showcase:hover { transform:translateY(-4px); border-color:var(--cyan); }
+    .flashcard-preview { min-height:310px; padding:28px; border-radius:16px; color:#fff; background:radial-gradient(circle at 85% 5%,rgba(255,255,255,.22),transparent 28%),linear-gradient(145deg,#0f766e,#4338ca); display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; isolation:isolate; }
+    .flashcard-preview:after { content:""; position:absolute; width:220px; height:220px; right:-75px; bottom:-100px; border:1px solid rgba(255,255,255,.28); border-radius:50%; box-shadow:0 0 0 22px rgba(255,255,255,.06),0 0 0 44px rgba(255,255,255,.04); z-index:-1; }
+    .preview-kicker { font:600 11px 'DM Mono'; letter-spacing:1px; opacity:.78; }
+    .preview-symbol { font:500 52px 'DM Mono'; margin:24px 0 14px; }
+    .flashcard-preview h3 { margin:0 0 10px; font-size:23px; }
+    .flashcard-preview p { margin:0; color:rgba(255,255,255,.82); line-height:1.6; font-size:14px; }
+    .preview-hint { margin-top:28px; font:600 11px 'DM Mono'; opacity:.78; }
+    .flashcard-copy h3 { font-size:clamp(26px,3vw,38px); line-height:1.15; letter-spacing:-1.2px; margin:14px 0; }
+    .flashcard-copy > p { color:var(--muted); line-height:1.7; margin:0 0 18px; }
+    .feature-badge { display:inline-block; padding:6px 9px; border-radius:6px; background:var(--tag-bg); color:var(--cyan); font:600 11px 'DM Mono'; }
+    .feature-points { display:grid; gap:9px; color:var(--muted); font-size:14px; margin:20px 0 26px; }
+    .flashcard-cta { width:max-content; }
+    .flashcard-meta { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:22px; color:var(--muted); font:600 11px 'DM Mono'; text-transform:uppercase; letter-spacing:.08em; }
+    .flashcard-dots { display:flex; gap:6px; }
+    .flashcard-dot { width:22px; height:4px; border:0; border-radius:99px; background:var(--line); padding:0; transition:.25s; }
+    .flashcard-dot.active { width:38px; background:var(--cyan); }
+    .flashcard-showcase.is-changing .flashcard-preview > * { animation:flashcardSwap .35s ease; }
+    @keyframes flashcardSwap { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    .tutorial-section { padding:68px 0 10px; }
+    .tutorial-card { display:grid; grid-template-columns:minmax(320px,1.05fr) 1fr; gap:28px; align-items:center; padding:26px; border:1px solid var(--line); border-radius:22px; background:var(--panel); box-shadow:var(--card-shadow); }
+    .tutorial-video { min-height:270px; border-radius:17px; position:relative; overflow:hidden; background:radial-gradient(circle at 72% 28%,rgba(94,234,212,.24),transparent 22%),linear-gradient(145deg,#071b2b,#0f766e 48%,#312e81); color:#fff; display:flex; flex-direction:column; justify-content:flex-end; padding:22px; isolation:isolate; }
+    .tutorial-video:before,.tutorial-video:after { content:""; position:absolute; border:1px solid rgba(255,255,255,.18); border-radius:50%; pointer-events:none; z-index:-1; }
+    .tutorial-video:before { width:230px; height:230px; right:-55px; top:-75px; transform:rotate(28deg); box-shadow:0 0 0 24px rgba(255,255,255,.04),0 0 0 48px rgba(255,255,255,.025); }
+    .tutorial-video:after { width:150px; height:150px; left:-70px; bottom:-90px; }
+    .tutorial-play { width:62px; height:62px; border-radius:50%; display:grid; place-items:center; margin-bottom:auto; align-self:center; background:rgba(255,255,255,.95); color:#0f766e; font-size:24px; box-shadow:0 12px 35px rgba(0,0,0,.25); }
+    .tutorial-controls { display:flex; align-items:center; gap:10px; margin-top:15px; }
+    .tutorial-progress { flex:1; height:4px; border-radius:99px; background:rgba(255,255,255,.28); overflow:hidden; }
+    .tutorial-progress i { display:block; width:38%; height:100%; background:#fff; border-radius:inherit; }
+    .tutorial-copy h2 { margin:9px 0 10px; font-size:clamp(28px,3vw,38px); letter-spacing:-1.1px; }
+    .tutorial-copy p { margin:0 0 18px; color:var(--muted); line-height:1.7; }
+    .tutorial-points { display:grid; gap:9px; margin:0 0 22px; color:var(--muted); font-size:14px; }
+    .tutorial-points span::first-letter { color:var(--cyan); }
+    @media(max-width:760px){ .tutorial-card{grid-template-columns:1fr;padding:18px}.tutorial-video{min-height:220px} }
+
+    .ai-launcher { position:fixed; left:auto; top:auto; right:max(24px, env(safe-area-inset-right)); bottom:max(24px, env(safe-area-inset-bottom)); z-index:950; min-height:48px; padding:0 16px 0 10px; display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:12px; color:var(--ink); background:var(--panel); box-shadow:0 10px 35px rgba(0,0,0,.14); font-size:13px; font-weight:800; backdrop-filter:blur(18px); }
+    .ai-launcher:hover { transform:translateY(-2px); border-color:var(--cyan); }
+    .ai-launcher-icon,.ai-spark { display:grid; place-items:center; color:#fff; background:linear-gradient(135deg,var(--cyan),var(--violet)); position:relative; overflow:hidden; }
+    .ai-launcher-icon { width:30px; height:30px; border-radius:9px; }
+    .ai-spark { width:36px; height:36px; border-radius:11px; }
+    .ai-orbit-logo { width:18px; height:10px; border:1.5px solid currentColor; border-radius:50%; transform:rotate(-28deg); position:relative; display:block; }
+    .ai-orbit-logo:before { content:""; position:absolute; inset:-5px 2px; border:1.5px solid currentColor; border-radius:50%; transform:rotate(56deg); }
+    .ai-orbit-logo:after { content:"Q"; position:absolute; inset:0; display:grid; place-items:center; font:800 8px Manrope,sans-serif; transform:rotate(28deg); }
+    .ai-launcher-icon .ai-orbit-logo { transform:scale(.85) rotate(-28deg); }
+    .ai-spark .ai-orbit-logo { transform:scale(1.05) rotate(-28deg); }
+    .ai-backdrop { align-items:flex-end; justify-content:flex-end; padding:24px; background:rgba(15,23,42,.16); }
+    .ai-modal { margin:0; width:min(460px,calc(100vw - 32px)); height:min(680px,calc(100vh - 48px)); padding:0; overflow:hidden; display:flex; flex-direction:column; border-radius:16px; background:var(--chat-bg); border:1px solid var(--chat-border); box-shadow:0 24px 80px rgba(0,0,0,.24); }
+    .ai-header { min-height:66px; display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--line); }
+    .ai-identity { display:flex; align-items:center; gap:10px; }
+    .ai-spark { width:36px; height:36px; border-radius:10px; }
+    .ai-identity h2 { margin:0; font-size:14px; letter-spacing:0; }
+    .ai-identity p { margin:2px 0 0; font-size:11px; color:var(--muted); }
+    .ai-header .auth-close { position:static; flex:none; }
+    .ai-messages { flex:1; height:auto; border:0; border-radius:0; padding:18px; background:var(--chat-bg); }
+    .ai-message { max-width:88%; width:max-content; padding:11px 13px; border-radius:10px; margin-bottom:12px; font-size:13px; line-height:1.55; white-space:pre-wrap; }
+    .ai-message.assistant { color:var(--ink); background:var(--bot-bubble); }
+    .ai-message.user { margin-left:auto; color:var(--user-text); background:var(--user-bubble); font-weight:600; }
+    .ai-suggestions { display:flex; gap:7px; overflow-x:auto; padding:0 14px 10px; }
+    .ai-suggestions button { flex:none; min-height:34px; padding:7px 10px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--muted); font-size:11px; }
+    .ai-suggestions button:hover { color:var(--ink); border-color:var(--cyan); }
+    .ai-form { margin:0 14px; padding:8px; align-items:flex-end; border:1px solid var(--input-border); border-radius:12px; background:var(--input-bg); }
+    .ai-form:focus-within { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(15,118,110,.12); }
+    .ai-input { height:auto; min-height:48px; max-height:120px; resize:none; border:0; padding:8px; line-height:1.5; font:500 14px Manrope,sans-serif; }
+    .ai-input:focus { border:0; box-shadow:none; outline:none; }
+    .ai-send { flex:none; width:36px; height:36px; border-radius:9px; color:#fff; background:var(--ink); font-size:20px; }
+    .ai-send:disabled { opacity:.5; cursor:wait; }
+    .ai-footnote { padding:9px 14px 12px; color:var(--muted); text-align:center; font-size:10px; }
+
+    @media(max-width:760px) {
+      .auth-actions { gap:7px; }
+      .theme-toggle { width:38px; height:38px; }
+      .navbtn, .auth-btn { padding:10px 12px; font-size:13px; }
+      .navlinks a { display:none } 
+      .hero { grid-template-columns:1fr; gap:32px; padding-top:48px } 
+      .path-grid { grid-template-columns:1fr } 
+      .section-head { display:block } 
+      .section-head p { margin-top:14px } 
+      .trust { margin-top:34px; gap:14px; flex-wrap:wrap; } 
+      .circuit { transform:scale(.88); transform-origin:left center; width:114% } 
+      .cta h2 { font-size:32px } 
+      .footer { flex-direction:column; gap:12px }
+      .learning-modal { padding:22px 18px; max-height:90vh; }
+      .info-grid, .info-grid.four { grid-template-columns:1fr; }
+      .learning-modal-header h2 { font-size:28px; }
+      .flashcard-showcase { grid-template-columns:1fr; padding:16px; gap:22px; }
+      .flashcard-preview { min-height:260px; }
+      .ai-launcher { right:max(16px, env(safe-area-inset-right)); bottom:max(16px, env(safe-area-inset-bottom)); }
+      .ai-backdrop { padding:0; }
+      .ai-modal { width:100%; height:min(78vh,680px); border-radius:16px 16px 0 0; }
+    }
+    .play-learn-btn {
+      display: inline-block;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+
+    .play-learn-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+    }
+  .top-profile{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);padding:5px 10px 5px 6px;border:1px solid var(--line);border-radius:999px;background:var(--input-bg);font-size:12px;font-weight:800}.top-avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--violet))}.adv-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end;margin-top:22px}.adv-controls label{font-size:12px;font-weight:700;color:var(--muted)}.adv-controls input{display:block;width:100%;margin-top:8px}.adv-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}.adv-metrics>div{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--circuit-bg)}.adv-metrics span{display:block;font:700 10px 'DM Mono';color:var(--muted)}.adv-metrics strong{display:block;margin:8px 0 4px;font-size:22px}.adv-metrics small{color:var(--muted);font-size:11px}.advantage-lab canvas{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--circuit-bg)}.adv-result{margin-top:14px;padding:12px;border-radius:12px;background:rgba(15,118,110,.08);color:var(--cyan);font-weight:800}@media(max-width:760px){.adv-controls,.adv-metrics{grid-template-columns:1fr}.top-profile span:last-child{display:none}}
+  .profile-section{scroll-margin-top:24px}.profile-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:18px;padding:28px;box-shadow:var(--card-shadow)}.profile-title{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.profile-title h2{margin:7px 0;font-size:30px}.profile-actions{display:flex;gap:8px;flex-wrap:wrap}.profile-actions button,.profile-edit button{border:1px solid var(--line);border-radius:9px;padding:10px 13px;background:var(--panel);color:var(--ink);font-weight:800;cursor:pointer}.profile-actions .danger{color:#b91c1c}.profile-edit{display:flex;gap:8px;margin-top:18px;max-width:460px}.profile-edit input{flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink)}.profile-summary{display:flex;align-items:center;gap:14px;margin:18px 0}.profile-avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--violet));font-size:20px;font-weight:900}.profile-summary p{margin:3px 0;color:var(--muted)}.profile-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.profile-metric{padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}.profile-metric span{display:block;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase}.profile-metric strong{display:block;margin-top:7px;font-size:25px}.profile-xp{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.profile-xp span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .3s}.profile-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:16px}@media(max-width:760px){.profile-metrics{grid-template-columns:repeat(2,1fr)}.profile-card{padding:19px}}
+  .qbytes-glow{opacity:0;transition:opacity .9s ease;}
+  body.qbytes-effects-active .qbytes-glow{opacity:.12;}
+  body.dark-theme.qbytes-effects-active .qbytes-glow{opacity:.22;}
+
+</style>
+
+<style id="qbytes-scroll-effects">
+  /* Carnage scroll-reactive visual layer */
+  #qbytesScrollFX{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:2;
+    opacity:0;
+    visibility:hidden;
+    mix-blend-mode:screen;
+    transition:opacity .9s ease, visibility .9s ease;
+  }
+  body.qbytes-effects-active #qbytesScrollFX{
+    opacity:.92;
+    visibility:visible;
+  }
+  body > *:not(#qbytesScrollFX):not(.qbytes-glow):not(.ai-launcher):not(#aiModal){position:relative;z-index:3}
+  .qbytes-glow{
+    position:fixed;
+    width:42vw;height:42vw;min-width:260px;min-height:260px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:2;
+    filter:blur(70px);
+    opacity:.12;
+    background:radial-gradient(circle,rgba(45,212,191,.9),rgba(124,58,237,.35) 42%,transparent 70%);
+    transform:translate3d(0,0,0);
+  }
+  .qbytes-glow.g1{top:-18vw;right:-12vw}
+  .qbytes-glow.g2{bottom:-20vw;left:-14vw;background:radial-gradient(circle,rgba(124,58,237,.85),rgba(45,212,191,.28) 45%,transparent 70%)}
+  body.dark-theme #qbytesScrollFX{opacity:1}
+  body.dark-theme .qbytes-glow{opacity:.22}
+  .qbytes-reveal{
+    opacity:0;
+    transform:translateY(34px) scale(.985);
+    transition:opacity .75s ease,transform .85s cubic-bezier(.2,.7,.2,1);
+  }
+  .qbytes-reveal.qbytes-visible{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    #qbytesScrollFX,.qbytes-glow{display:none}
+    .qbytes-reveal{opacity:1;transform:none;transition:none}
+  }
+</style>
+
+</head>
+
+<body>
+<canvas id="qbytesScrollFX" aria-hidden="true"></canvas><div class="qbytes-glow g1" aria-hidden="true"></div><div class="qbytes-glow g2" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <nav>
+      <div class="brand" aria-label="Carnage"><img class="mark" src="assets/carnage-logo.png" alt="Carnage"></div>
+      <div class="navlinks">
+        <a href="#paths">Learning paths</a>
+        <a href="#simulator">Simulator</a>
+        <a href="quiz.html">Quizzes</a>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark theme">🌙</button>
+        <div class="auth-actions"><button class="auth-btn" id="authBtn" onclick="openAuth()">Sign in / Sign up</button><a id="topProfile" class="top-profile" href="#profile" hidden><span class="top-avatar" id="topAvatar">Q</span><span id="topProfileName">Profile</span></a></div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="modal-backdrop" id="authModal" onclick="closeAuthOnBackdrop(event)">
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="auth-close" onclick="closeAuth()" aria-label="Close">×</button>
+      <img class="auth-logo" src="assets/carnage-logo.png" alt="Carnage logo">
+      <h2 id="authTitle">Welcome to Carnage</h2>
+      <p class="auth-subtitle">Sign in to save your circuits, track progress, and personalize your quantum learning journey.</p>
+
+      <button class="oauth-btn" onclick="socialLogin('Google')">
+        <span class="oauth-icon google-icon">G</span>
+        Continue with Google
+      </button>
+      <button class="oauth-btn" onclick="socialLogin('GitHub')">
+        <span class="oauth-icon">●</span>
+        Continue with GitHub
+      </button>
+
+      <div class="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
+
+      <input class="email-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email">
+      <button class="email-submit" onclick="emailLogin()">Continue with Email</button>
+      <p class="auth-note">Demo email sign-in saves your learning data on this server. Email ownership is not verified, so do not use a private account until secure authentication is connected.</p>
+    </div>
+
+  </div>
+
+  <div class="modal-backdrop ai-backdrop" id="aiModal" onclick="closeAiOnBackdrop(event)">
+    <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+      <div class="ai-header">
+        <div class="ai-identity"><span class="ai-spark"><span class="ai-orbit-logo" aria-hidden="true"></span></span><div><h2 id="aiTitle">Carnage AI</h2><p>Quantum learning assistant</p></div></div>
+        <button class="auth-close" onclick="closeAi()" aria-label="Close AI tutor">×</button>
+      </div>
+      <div class="ai-messages" id="aiMessages" aria-live="polite">
+        <div class="ai-message assistant">Welcome, quantum explorer — ask me to explain a concept, debug a circuit, or plan your next lesson.</div>
+      </div>
+      <div class="ai-suggestions" aria-label="Suggested questions">
+        <button type="button" onclick="submitAiSuggestion('Explain superposition simply')">Explain superposition</button>
+        <button type="button" onclick="submitAiSuggestion('Show me a Bell state circuit')">Build a Bell state</button>
+        <button type="button" onclick="submitAiSuggestion('How does Grover’s algorithm work?')">Explore Grover’s algorithm</button>
+      </div>
+      <form class="ai-form" id="aiForm">
+        <textarea class="ai-input" id="aiInput" rows="2" placeholder="Ask anything about quantum computing…" autocomplete="off"></textarea>
+        <button class="ai-send" type="submit" id="aiSend" aria-label="Send message">↑</button>
+      </form>
+      <div class="ai-footnote">AI can make mistakes. Verify important results.</div>
+    </div>
+  </div>
+
+  <div class="learning-modal-backdrop" id="learningModal" onclick="closeLearningOnBackdrop(event)">
+    <div class="learning-modal" role="dialog" aria-modal="true" aria-labelledby="learningModalTitle">
+      <button class="learning-close" onclick="closeLearningModal()" aria-label="Close">×</button>
+      <div class="learning-modal-header">
+        <span class="section-label" id="learningModalLabel">QUANTUM LEARNING</span>
+        <h2 id="learningModalTitle">Think in qubits</h2>
+        <p id="learningModalIntro"></p>
+      </div>
+      <div id="learningModalContent"></div>
+    </div>
+  </div>
+
+  <button class="ai-launcher" type="button" onclick="openAi()" aria-label="Open Carnage AI Tutor">
+    <span class="ai-launcher-icon"><span class="ai-orbit-logo" aria-hidden="true"></span></span><span>Carnage AI</span>
+  </button>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="pulse"></span> The quantum learning platform</div>
+        <h1>Learn quantum.<br><span>Build intuition.</span></h1>
+        <p>A visual, interactive space to understand qubits, design circuits, and explore the algorithms shaping tomorrow — without needing quantum hardware.</p>
+        <div class="hero-actions">
+          <button class="primary" onclick="openLab()">Explore the lab →</button>
+          <a class="secondary" href="quiz.html">Solve Quizzes</a>
+          <a href="game.html" class="play-learn-btn">🎮 Quantum Games</a>
+          <a href="/quantum-code/quantum-code.html" class="secondary">
+            ⚛️ Quantum Code
+          </a>
+        </div>
+        <div class="trust">
+          <div><strong>12+</strong><span>Interactive lessons</span></div>
+          <div><strong>3</strong><span>Learning tracks</span></div>
+          <div><strong>50</strong><span>Quantum Quizzes</span></div>
+        </div>
+      </div>
+      
+      <div id="simulator" class="sim-card">
+        <div class="card-top"><span>QUANTUM CIRCUIT LAB</span><span class="live">● SIMULATOR READY</span></div>
+        <div class="lesson-title">Bell State Explorer</div>
+        <div class="tiny">Create entanglement in two simple steps.</div>
+        <div class="circuit">
+          <span class="q q1">q₀</span><span class="q q2">q₁</span><i class="wire w1"></i><i class="wire w2"></i>
+          <div class="gate h">H</div>
+          <div class="gate x">X</div>
+          <div class="control"></div>
+          <div class="gate measure">M</div>
+        </div>
+        <div class="run-row">
+          <span class="outcome" id="outcome">P(00) = 50% · P(11) = 50%</span>
+          <button class="run" onclick="runCircuit()">▶ Run circuit</button>
+        </div>
+        <div class="result" id="result" aria-live="polite">1024 shots complete — entanglement observed.</div>
+        <div style="margin-top:16px; padding-top:15px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; align-items:center;">
+          <span id="stepText" style="color:var(--ink); font-size:13px; font-weight:600;">Step 0/4: Initial state — both qubits are |00⟩</span>
+          <button class="run" onclick="nextStep()">Next step →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="paths" class="flashcard-feature">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Learn • Flip • Master</div>
+          <h2>Quantum Flashcard</h2>
+        </div>
+        <p>Build quantum intuition with concise, interactive cards across seven structured levels.</p>
+      </div>
+
+      <a class="flashcard-showcase" href="game.html#flashcard" aria-label="Open Quantum Flashcard">
+        <div class="flashcard-preview" aria-hidden="true">
+          <div class="preview-kicker" id="flashcardKicker">LEVEL 1 · FOUNDATIONS</div>
+          <div class="preview-symbol" id="flashcardSymbol">|ψ⟩</div>
+          <h3 id="flashcardQuestion">What is superposition?</h3>
+          <p id="flashcardAnswer">A qubit can hold a combination of |0⟩ and |1⟩ until measurement.</p>
+          <span class="preview-hint">Recommended next →</span>
+        </div>
+        <div class="flashcard-copy">
+          <span class="feature-badge">7 levels · 50+ cards</span>
+          <h3>Learn one quantum concept at a time.</h3>
+          <p>Study qubits, states, gates, mathematics, circuits, algorithms, and quantum errors with quick prompts and clear answers.</p>
+          <div class="feature-points">
+            <span>✓ Track mastered cards</span>
+            <span>✓ Review difficult topics</span>
+            <span>✓ Works on mobile</span>
+          </div>
+          <span class="primary flashcard-cta">Start Quantum Flashcard →</span>
+          <div class="flashcard-meta"><span id="flashcardProgress">01 / 04 · Recommended</span><span class="flashcard-dots" aria-hidden="true"><i class="flashcard-dot active"></i><i class="flashcard-dot"></i><i class="flashcard-dot"></i><i class="flashcard-dot"></i></span></div>
+        </div>
+      </a>
+    </section>
+
+    <!-- Keep practice directly after the learning deck so the journey has a clear Learn → Test flow. -->
+    <section id="quizzes" style="padding:36px 0 70px;">
+     <div class="doctor-box quiz-promo" style="text-align: center;">
+       <div class="section-label">Next step · Practice</div>
+       <h2>Quantum Quick Quizzes</h2>
+       <p style="max-width: 600px; margin: 10px auto 25px;">Turn each flashcard into confidence with 70 topic-based questions across foundational to advanced concepts.</p>
+       <a href="quiz.html" class="primary" style="font-size: 16px; padding: 14px 28px;">Start solving →</a>
+     </div>
+    </section>
+
+    <section style="padding:70px 0;">
+      <div class="doctor-box">
+        <div class="section-label">Quantum advantage visualizer</div>
+        <h2>Classical vs Quantum Search</h2>
+        <p>Compare the estimated number of checks needed to find one item in an unstructured database.</p>
+
+        <label for="searchSize" style="display:block; margin-top:20px; color:var(--ink); font-weight:600;">
+          Database size: <strong id="databaseValue" style="color:var(--cyan);">1000</strong> items
+        </label>
+        <input id="searchSize" type="range" min="100" max="1000000" step="100" value="1000" oninput="compareSearch()" style="width:100%; margin-top:12px;">
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:25px;">
+          <div style="flex:1; min-width:220px; padding:20px; background:var(--circuit-bg); border-radius:12px;">
+            <div style="color:var(--muted); font-size:12px; font-weight:700;">CLASSICAL SEARCH</div>
+            <h3 id="classicalSteps" style="color:var(--yellow); margin:10px 0 5px; font-size:22px;">500 checks</h3>
+            <p style="font-size:14px; margin:0; font-weight:500;">On average, a classical search checks half the database.</p>
+          </div>
+          <div style="flex:1; min-width:220px; padding:20px; background:var(--circuit-bg); border-radius:12px;">
+            <div style="color:var(--muted); font-size:12px; font-weight:700;">QUANTUM SEARCH</div>
+            <h3 id="quantumSteps" style="color:var(--cyan); margin:10px 0 5px; font-size:22px;">25 iterations</h3>
+            <p style="font-size:14px; margin:0; font-weight:500;">Grover's algorithm needs roughly √N iterations.</p>
+          </div>
+        </div>
+
+        <div id="comparisonResult" style="margin-top:22px; color:var(--lime); font-weight:700;">
+          For 1,000 items, quantum search can use about 20× fewer checks.
+        </div>
+      </div>
+    </section>
+
+    <section class="tutorial-section" id="tutorial">
+      <div class="tutorial-card">
+        <div class="tutorial-video" aria-label="Quantum Tutorial video preview">
+          <div class="tutorial-play" aria-hidden="true">▶</div>
+          <div>
+            <div class="section-label" style="color:#a7f3d0;">REFERENCE TUTORIAL</div>
+            <strong style="display:block;font-size:22px;margin-top:6px;">Quantum Computing — From Qubit to Circuit</strong>
+            <div class="tutorial-controls"><span style="font:600 11px 'DM Mono';">00:00</span><div class="tutorial-progress"><i></i></div><span style="font:600 11px 'DM Mono';">12:40</span></div>
+          </div>
+        </div>
+        <div class="tutorial-copy">
+          <div class="section-label">Learn visually</div>
+          <h2>Quantum Tutorial</h2>
+          <p>A focused video-style learning block for understanding qubits, superposition, entanglement, gates, and circuits before you experiment in the Lab.</p>
+          <div class="tutorial-points">
+            <span>✓ Learn core concepts</span>
+            <span>✓ See concepts explained visually</span>
+            <span>✓ Continue directly into the Quantum Lab</span>
+          </div>
+          <button class="primary" onclick="openLab()">Open Quantum Lab →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="profile" class="profile-section" hidden>
+      <div class="profile-card">
+        <div class="profile-title"><div><div class="section-label">Your progress</div><h2>Learning Profile</h2></div><div class="profile-actions"><button type="button" onclick="exportProfile()">Export my data</button><button type="button" onclick="signOut()">Sign out</button><button type="button" class="danger" onclick="deleteProfile()">Delete account</button></div></div>
+        <div class="profile-summary"><div class="profile-avatar" id="profileAvatar">Q</div><div><strong id="profileNameLabel">Quantum learner</strong><p id="profileEmailLabel"></p></div></div>
+        <form class="profile-edit" onsubmit="saveProfileName(event)"><input id="profileNameInput" maxlength="40" placeholder="Display name" aria-label="Display name"><button type="submit">Save name</button></form>
+        <div class="profile-metrics">
+          <div class="profile-metric"><span>Points</span><strong id="profilePoints">0</strong></div><div class="profile-metric"><span>Level</span><strong id="profileLevel">1</strong></div><div class="profile-metric"><span>Day streak</span><strong id="profileStreak">0</strong></div>
+          <div class="profile-metric"><span>Quiz answers</span><strong id="profileAnswers">0</strong></div><div class="profile-metric"><span>Correct answers</span><strong id="profileCorrect">0</strong></div><div class="profile-metric"><span>Quizzes completed</span><strong id="profileQuizzes">0</strong></div>
+          <div class="profile-metric"><span>Flashcards mastered</span><strong id="profileCards">0</strong></div><div class="profile-metric"><span>Circuits run</span><strong id="profileCircuits">0</strong></div><div class="profile-metric"><span>Active days (90d)</span><strong id="profileActiveDays">0</strong></div>
+        </div>
+        <p><strong id="profileNextLevel">0 / 100 points</strong> to next level</p><div class="profile-xp"><span id="profileXpBar"></span></div>
+        <p class="profile-note" id="profileMessage" aria-live="polite">Your quiz results, mastered flashcards, and lab activity are saved to your profile when signed in.</p>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="section-label">Ready when you are</div>
+      <h2>Your quantum journey starts here.</h2>
+      <p>From curiosity to circuits — one interaction at a time.</p>
+      <button class="primary" onclick="startLearning()">Enter the learning lab →</button>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer">
+      <span>© 2026 Carnage · SIH Problem Statement 26140</span>
+      <span>AI-based interactive quantum algorithm learning platform</span>
+    </div>
+  </footer>
+
+  <script>
+    function openLab() {
+      window.location.href = 'lab/index.html';
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const themeBtn = document.getElementById('themeToggle');
+      
+      body.classList.toggle('dark-theme');
+      
+      if (body.classList.contains('dark-theme')) {
+        themeBtn.textContent = '☀';
+        themeBtn.setAttribute('aria-label', 'Toggle light theme');
+        localStorage.setItem('qbytes-theme', 'dark');
+      } else {
+        themeBtn.textContent = '🌙';
+        themeBtn.setAttribute('aria-label', 'Toggle dark theme');
+        localStorage.setItem('qbytes-theme', 'light');
+      }
+    }
+
+    if (localStorage.getItem('qbytes-theme') === 'dark') {
+      toggleTheme();
+    }
+
+    const aiMessages = [
+      { role: 'assistant', content: 'Welcome, quantum explorer — ask me to explain a concept, debug a circuit, or plan your next lesson.' }
+    ];
+
+    function openAi() {
+      document.getElementById('aiModal').classList.add('open');
+      document.getElementById('aiInput').focus();
+    }
+    function submitAiSuggestion(question) {
+      document.getElementById('aiInput').value = question;
+      document.getElementById('aiForm').requestSubmit();
+    }
+    function closeAi() {
+      document.getElementById('aiModal').classList.remove('open');
+    }
+    function closeAiOnBackdrop(event) {
+      if (event.target === document.getElementById('aiModal')) closeAi();
+    }
+    function addAiMessage(role, content) {
+      const message = document.createElement('div');
+      message.className = `ai-message ${role}`;
+      message.textContent = content;
+      document.getElementById('aiMessages').appendChild(message);
+      document.getElementById('aiMessages').scrollTop = document.getElementById('aiMessages').scrollHeight;
+    }
+    async function askAi(question) {
+      aiMessages.push({ role: 'user', content: question });
+      addAiMessage('user', question);
+      const sendButton = document.getElementById('aiSend');
+      sendButton.disabled = true;
+      sendButton.textContent = '...';
+      try {
+        const response = await fetch('/api/quantum-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: aiMessages })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'AI request failed.');
+        const answer = data.answer || 'I could not generate an answer. Please try again.';
+        aiMessages.push({ role: 'assistant', content: answer });
+        addAiMessage('assistant', answer);
+      } catch (error) {
+        addAiMessage('assistant', `AI unavailable: ${error.message}`);
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = 'Send';
+      }
+    }
+    document.getElementById('aiInput').addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); document.getElementById('aiForm').requestSubmit(); }
+    });
+    document.getElementById('aiForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const input = document.getElementById('aiInput');
+      const question = input.value.trim();
+      if (!question) return;
+      input.value = '';
+      askAi(question);
+    });
+
+    function openAuth() {
+      document.getElementById('authModal').classList.add('open');
+    }
+    function closeAuth() {
+      document.getElementById('authModal').classList.remove('open');
+    }
+    function closeAuthOnBackdrop(event) {
+      if (event.target === document.getElementById('authModal')) closeAuth();
+    }
+    async function socialLogin(provider) {
+      alert(`${provider} OAuth is UI-ready. Provider credentials and callback routes are required before enabling real OAuth.`);
+      closeAuth();
+    }
+    async function emailLogin() {
+      const email = document.getElementById('authEmail').value.trim();
+      if(!email) return alert('Please enter a valid email address.');
+      try {
+        const response = await fetch('/api/auth/email', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({email})
+        });
+        const data = await response.json();
+        if(!response.ok) throw new Error(data.error || 'Sign-in failed');
+        localStorage.setItem('qbytes-session', data.token);
+        localStorage.setItem('qbytes-user-email', data.user.email);
+        updateTopProfile();
+        alert(data.message);
+        closeAuth();
+      } catch(error) {
+        alert(error.message);
+      }
+    }
+
+    function startLearning() {
+      const paths = document.getElementById('paths');
+      const grid = document.querySelector('.path-grid');
+      paths.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      grid.style.outline = '2px solid var(--cyan)';
+      grid.style.outlineOffset = '10px';
+      setTimeout(() => { grid.style.outline = ''; grid.style.outlineOffset = ''; }, 2000);
+    }
+
+    const recommendedCards = [
+      { kicker: 'LEVEL 1 · FOUNDATIONS', symbol: '|ψ⟩', question: 'What is superposition?', answer: 'A qubit can hold a combination of |0⟩ and |1⟩ until measurement.' },
+      { kicker: 'LEVEL 2 · GATES', symbol: 'H', question: 'What does a Hadamard do?', answer: 'It turns a basis state into a balanced superposition, making probability amplitudes visible.' },
+      { kicker: 'LEVEL 4 · CIRCUITS', symbol: '⊕', question: 'How does CNOT entangle?', answer: 'A control qubit conditionally flips a target, correlating their measurement outcomes.' },
+      { kicker: 'LEVEL 6 · ALGORITHMS', symbol: '√N', question: 'Why is Grover useful?', answer: 'Amplitude amplification helps find a marked item in roughly the square root of the search space.' }
+    ];
+    let recommendedCardIndex = 0;
+    function renderRecommendedCard(index) {
+      recommendedCardIndex = (index + recommendedCards.length) % recommendedCards.length;
+      const card = recommendedCards[recommendedCardIndex];
+      const showcase = document.querySelector('.flashcard-showcase');
+      ['flashcardKicker', 'flashcardSymbol', 'flashcardQuestion', 'flashcardAnswer'].forEach(id => {
+        document.getElementById(id).textContent = card[{ flashcardKicker: 'kicker', flashcardSymbol: 'symbol', flashcardQuestion: 'question', flashcardAnswer: 'answer' }[id]];
+      });
+      document.getElementById('flashcardProgress').textContent = `${String(recommendedCardIndex + 1).padStart(2, '0')} / ${String(recommendedCards.length).padStart(2, '0')} · Recommended`;
+      document.querySelectorAll('.flashcard-dot').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === recommendedCardIndex));
+      showcase.classList.remove('is-changing');
+      void showcase.offsetWidth;
+      showcase.classList.add('is-changing');
+    }
+    function startRecommendedCards() {
+      document.querySelectorAll('.flashcard-dot').forEach((dot, index) => dot.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        renderRecommendedCard(index);
+      }));
+      window.setInterval(() => renderRecommendedCard(recommendedCardIndex + 1), 5200);
+    }
+    startRecommendedCards();
+
+    const learningContent = {
+      qubits: {
+        label: '01 / FOUNDATIONS',
+        title: 'Think in qubits',
+        intro: 'Build the foundation of quantum computing by understanding the basic ideas behind a qubit and how quantum information behaves.',
+        content: `
+          <div class="info-section">
+            <h3>What is a qubit?</h3>
+            <p>A qubit is the basic unit of quantum information. Unlike a classical bit, which is either 0 or 1, a qubit can be in a quantum superposition of both basis states until measurement.</p>
+            <div class="info-grid">
+              <div class="info-card"><h4>Superposition</h4><p>A qubit can be represented as a combination of |0⟩ and |1⟩. Measurement gives a definite classical result.</p></div>
+              <div class="info-card"><h4>Entanglement</h4><p>Multiple qubits can share correlations that cannot be described by treating each qubit independently.</p></div>
+              <div class="info-card"><h4>Interference</h4><p>Quantum amplitudes can reinforce or cancel one another, helping quantum algorithms amplify useful outcomes.</p></div>
+              <div class="info-card"><h4>Measurement</h4><p>Measuring a qubit converts its quantum state into a classical outcome such as 0 or 1.</p></div>
+            </div>
+          </div>
+        `
+      },
+
+      gates: {
+        label: '02 / CIRCUITS',
+        title: 'Build with gates',
+        intro: 'Choose a qubit level to learn the gates used to transform quantum states. The three sections are organized by one, two, and three qubits.',
+        content: `
+          <div class="info-section">
+            <h3>Section 1 — Single-qubit gates</h3>
+            <p>These gates operate on one qubit at a time.</p>
+            <div class="info-grid">
+              <div class="info-card"><div class="gate-symbol">X</div><h4>Pauli-X</h4><p>Bit-flip gate. It maps |0⟩ ↔ |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">Y</div><h4>Pauli-Y</h4><p>Combines a bit flip with a phase change.</p></div>
+              <div class="info-card"><div class="gate-symbol">Z</div><h4>Pauli-Z</h4><p>Phase-flip gate. It leaves |0⟩ unchanged and adds a phase to |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">H</div><h4>Hadamard</h4><p>Creates an equal superposition from |0⟩ or |1⟩, up to phase.</p></div>
+              <div class="info-card"><div class="gate-symbol">S</div><h4>S gate</h4><p>A phase gate that applies a 90° phase shift to the |1⟩ component.</p></div>
+              <div class="info-card"><div class="gate-symbol">T</div><h4>T gate</h4><p>A phase gate that applies a 45° phase shift to the |1⟩ component.</p></div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Section 2 — Two-qubit gates</h3>
+            <p>These gates create controlled operations and correlations between two qubits.</p>
+            <div class="info-grid">
+              <div class="info-card"><div class="gate-symbol">CX</div><h4>CNOT / Controlled-X</h4><p>Flips the target qubit when the control qubit is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CY</div><h4>Controlled-Y</h4><p>Applies a Pauli-Y operation to the target when the control is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CZ</div><h4>Controlled-Z</h4><p>Applies a Z phase flip to the target when the control is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CH</div><h4>Controlled-H</h4><p>Applies a Hadamard operation to the target when the control is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CS</div><h4>Controlled-S</h4><p>Applies the S phase operation to the target when the control is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CT</div><h4>Controlled-T</h4><p>Applies the T phase operation to the target when the control is |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">SWAP</div><h4>SWAP</h4><p>Exchanges the quantum states of two qubits.</p></div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Section 3 — Three-qubit gates</h3>
+            <p>These gates operate across three qubits and enable more complex controlled operations.</p>
+            <div class="info-grid">
+              <div class="info-card"><div class="gate-symbol">CCX</div><h4>CCNOT / Toffoli</h4><p>Flips the target qubit only when both control qubits are |1⟩.</p></div>
+              <div class="info-card"><div class="gate-symbol">CSWAP</div><h4>CSWAP / Fredkin</h4><p>Swaps two target qubits only when the control qubit is |1⟩.</p></div>
+            </div>
+          </div>
+        `
+      },
+
+      algorithms: {
+        label: '03 / ALGORITHMS',
+        title: 'Quantum algorithms',
+        intro: 'Explore four important quantum algorithms and the core idea behind each one.',
+        content: `
+          <div class="info-section">
+            <h3>Algorithms</h3>
+            <p>Each algorithm demonstrates a different way quantum mechanics can be used for computation.</p>
+            <div class="info-grid four">
+              <div class="info-card algorithm-card"><div class="gate-symbol">G</div><h4>Grover's Algorithm</h4><p>A quantum search algorithm for finding a marked item in an unstructured search space using roughly √N iterations.</p></div>
+              <div class="info-card algorithm-card"><div class="gate-symbol">S</div><h4>Shor's Algorithm</h4><p>An algorithm for factoring large integers efficiently on a sufficiently capable fault-tolerant quantum computer.</p></div>
+              <div class="info-card algorithm-card"><div class="gate-symbol">QFT</div><h4>Quantum Fourier Transform</h4><p>A quantum version of the discrete Fourier transform used as a key building block in algorithms such as Shor's algorithm.</p></div>
+              <div class="info-card algorithm-card"><div class="gate-symbol">D</div><h4>Deutsch Algorithm</h4><p>A foundational quantum algorithm that determines whether a one-bit function is constant or balanced with fewer function evaluations than a classical deterministic approach.</p></div>
+            </div>
+          </div>
+        `
+      }
+    };
+
+    function openLearningModal(type) {
+      const item = learningContent[type];
+      if (!item) return;
+
+      document.getElementById('learningModalLabel').textContent = item.label;
+      document.getElementById('learningModalTitle').textContent = item.title;
+      document.getElementById('learningModalIntro').textContent = item.intro;
+      document.getElementById('learningModalContent').innerHTML = item.content;
+      document.getElementById('learningModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLearningModal() {
+      document.getElementById('learningModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeLearningOnBackdrop(event) {
+      if (event.target === document.getElementById('learningModal')) closeLearningModal();
+    }
+
+    function handleLearningCardKey(event, type) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openLearningModal(type);
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const modal = document.getElementById('learningModal');
+        if (modal && modal.classList.contains('open')) closeLearningModal();
+      }
+    });
+
+    function compareSearch() {
+      const size = Number(document.getElementById('searchSize').value);
+      const classical = Math.ceil(size / 2);
+      const quantum = Math.ceil((Math.PI / 4) * Math.sqrt(size));
+      const advantage = Math.round(classical / quantum);
+
+      document.getElementById('databaseValue').textContent = size.toLocaleString();
+      document.getElementById('classicalSteps').textContent = classical.toLocaleString() + ' checks';
+      document.getElementById('quantumSteps').textContent = quantum.toLocaleString() + ' iterations';
+      document.getElementById('comparisonResult').textContent = `For ${size.toLocaleString()} items, quantum search can use about ${advantage}× fewer checks.`;
+    }
+    
+    let executionStep = 0;
+    function nextStep() {
+      const steps = [
+        { text: 'Step 0/4: Initial state — both qubits are |00⟩', state: 'State: |00⟩' },
+        { text: 'Step 1/4: Hadamard gate creates superposition in q₀', state: 'State: (|00⟩ + |10⟩) / √2' },
+        { text: 'Step 2/4: CNOT gate entangles q₀ and q₁', state: 'State: (|00⟩ + |11⟩) / √2' },
+        { text: 'Step 3/4: Measure both qubits', state: 'Possible output: 00 or 11' },
+        { text: 'Step 4/4: Bell State experiment complete', state: 'P(00) = 50% · P(11) = 50%' }
+      ];
+
+      executionStep = (executionStep + 1) % steps.length;
+      document.getElementById('stepText').textContent = steps[executionStep].text;
+      document.getElementById('outcome').textContent = steps[executionStep].state;
+
+      const hadamard = document.querySelector('.gate.h');
+      const cnot = document.querySelector('.gate.x');
+      const measure = document.querySelector('.gate.measure');
+
+      hadamard.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+      cnot.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+      measure.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+
+      const computedStyle = getComputedStyle(document.body);
+      const cyan = computedStyle.getPropertyValue('--cyan').trim();
+      const violet = computedStyle.getPropertyValue('--violet').trim();
+      const lime = computedStyle.getPropertyValue('--lime').trim();
+
+      if (executionStep === 1) hadamard.style.boxShadow = `0 0 24px ${cyan}`;
+      if (executionStep === 2) cnot.style.boxShadow = `0 0 24px ${violet}`;
+      if (executionStep === 3 || executionStep === 4) measure.style.boxShadow = `0 0 24px ${lime}`;
+    }
+    
+    
+    function runCircuit() {
+      const r = document.getElementById('result');
+      const o = document.getElementById('outcome');
+      r.style.display = 'block';
+      o.textContent = 'P(00) = 49.8% · P(11) = 50.2%';
+    }
+    
+  </script>
+  
+<script>
+      // Backend status is optional for the landing page; quiz navigation is handled by /quiz.
+      fetch('/api/health').catch(() => {});
+</script>
+
+<script>function updateTopProfile(){const email=localStorage.getItem('qbytes-user-email'),btn=document.getElementById('authBtn'),p=document.getElementById('topProfile');if(!email||!p)return;btn.hidden=true;p.hidden=false;const name=email.split('@')[0];document.getElementById('topProfileName').textContent=name;document.getElementById('topAvatar').textContent=(name[0]||'Q').toUpperCase();}function initAdvantage(){const size=document.getElementById('searchSize'),target=document.getElementById('targetPos'),run=document.getElementById('advRun');if(!size)return;function draw(){const n=+size.value,pos=+target.value,cl=Math.max(1,Math.round(n/2)),gr=Math.max(1,Math.round(Math.PI*Math.sqrt(n)/4)),ratio=(cl/gr).toFixed(1);document.getElementById('databaseValue').textContent=n.toLocaleString();document.getElementById('targetValue').textContent=pos+'%';document.getElementById('classicalSteps').textContent=cl.toLocaleString()+' checks';document.getElementById('quantumSteps').textContent=gr.toLocaleString()+' iterations';document.getElementById('advRatio').textContent=ratio+'×';document.getElementById('comparisonResult').textContent=`For ${n.toLocaleString()} items, the idealized Grover model uses about ${ratio}× fewer oracle iterations than average classical search.`;const c=document.getElementById('advantageCanvas'),ctx=c.getContext('2d'),w=c.clientWidth||700,h=c.height;c.width=w;ctx.clearRect(0,0,w,h);const max=Math.max(cl,gr),pad=42;ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--cyan');ctx.fillRect(pad,20,(w-pad*2)*(cl/max),30);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--violet');ctx.fillRect(pad,90,(w-pad*2)*(gr/max),30);ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--ink');ctx.font='700 12px system-ui';ctx.fillText('Classical',pad,15);ctx.fillText('Grover',pad,85);const tx=pad+(w-pad*2)*(pos/100);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--yellow');ctx.beginPath();ctx.moveTo(tx,5);ctx.lineTo(tx,h-5);ctx.stroke();}size.addEventListener('input',draw);target.addEventListener('input',draw);run.addEventListener('click',draw);draw();}document.addEventListener('DOMContentLoaded',()=>{updateTopProfile();initAdvantage();});</script>
+<script>
+function profileHeaders(){return {"Content-Type":"application/json","Authorization":"Bearer "+(localStorage.getItem("qbytes-session")||"")};}
+window.updateTopProfile=async function(){
+  const token=localStorage.getItem("qbytes-session"),btn=document.getElementById("authBtn"),link=document.getElementById("topProfile"),section=document.getElementById("profile");
+  if(!token){btn.hidden=false;link.hidden=true;section.hidden=true;return;}
+  try{
+    const response=await fetch("/api/profile",{headers:profileHeaders()});if(!response.ok)throw new Error("Profile session expired");
+    const user=(await response.json()).user;btn.hidden=true;link.hidden=false;section.hidden=false;link.querySelector("#topProfileName").textContent=user.name;
+    document.getElementById("topAvatar").textContent=user.avatar;document.getElementById("profileAvatar").textContent=user.avatar;
+    document.getElementById("profileNameLabel").textContent=user.name;document.getElementById("profileNameInput").value=user.name;
+    document.getElementById("profileEmailLabel").textContent=user.email;
+    document.getElementById("profilePoints").textContent=user.points;document.getElementById("profileLevel").textContent=user.level;
+    document.getElementById("profileStreak").textContent=user.streak;document.getElementById("profileAnswers").textContent=user.stats.quizAnswers;
+    document.getElementById("profileCorrect").textContent=user.stats.correctAnswers;document.getElementById("profileQuizzes").textContent=user.stats.quizzesCompleted;
+    document.getElementById("profileCards").textContent=user.stats.flashcardsKnown;document.getElementById("profileCircuits").textContent=user.stats.circuitsRun;
+    document.getElementById("profileActiveDays").textContent=user.activeDates.length;
+    document.getElementById("profileNextLevel").textContent=`${user.levelProgress} / 100 points`;
+    document.getElementById("profileXpBar").style.width=`${user.levelProgress}%`;
+    document.getElementById("profileMessage").textContent="Earn points by answering each quiz question correctly the first time (+10), completing your first quiz each day (+20), mastering a flashcard (+5 once), and running your first circuit each day (+3). Every 100 points increases your level.";
+  }catch(error){document.getElementById("profileMessage").textContent=error.message;}
+};
+async function saveProfileName(event){event.preventDefault();const name=document.getElementById("profileNameInput").value.trim();try{const response=await fetch("/api/profile",{method:"PATCH",headers:profileHeaders(),body:JSON.stringify({name})});const data=await response.json();if(!response.ok)throw new Error(data.error);await updateTopProfile();document.getElementById("profileMessage").textContent="Display name updated.";}catch(error){document.getElementById("profileMessage").textContent=error.message;}}
+async function exportProfile(){try{const response=await fetch("/api/profile/export",{headers:profileHeaders()});if(!response.ok)throw new Error("Could not export profile data.");const blob=await response.blob(),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="qbytes-learning-data.json";a.click();URL.revokeObjectURL(url);}catch(error){document.getElementById("profileMessage").textContent=error.message;}}
+function signOut(){localStorage.removeItem("qbytes-session");localStorage.removeItem("qbytes-user-email");updateTopProfile();window.scrollTo({top:0,behavior:"smooth"});}
+async function deleteProfile(){if(!confirm("Delete your profile and all saved learning data? This cannot be undone."))return;try{const response=await fetch("/api/profile",{method:"DELETE",headers:profileHeaders()});if(!response.ok)throw new Error("Could not delete profile.");signOut();document.getElementById("profileMessage").textContent="Profile deleted.";}catch(error){document.getElementById("profileMessage").textContent=error.message;}}
+</script>
+<script id="qbytes-scroll-effects-script">
+(() => {
+  const canvas = document.getElementById("qbytesScrollFX");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d", {alpha:true});
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return;
+
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let w = 0, h = 0, scrollY = window.scrollY || 0, targetScroll = scrollY;
+  let last = performance.now();
+  let particles = [];
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = innerWidth; h = innerHeight;
+    canvas.width = Math.floor(w*dpr);
+    canvas.height = Math.floor(h*dpr);
+    canvas.style.width = w+"px";
+    canvas.style.height = h+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const count = Math.min(150, Math.max(55, Math.floor(w*h/15000)));
+    particles = Array.from({length:count}, (_,i) => ({
+      x: Math.random()*w, y: Math.random()*h, z: .35+Math.random()*.9,
+      r: .7+Math.random()*2.1, a:.2+Math.random()*.65,
+      phase:Math.random()*Math.PI*2, speed:.08+Math.random()*.25
+    }));
+  }
+
+  function line(x1,y1,x2,y2,a){
+    ctx.strokeStyle = `rgba(70,190,255,${a})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+
+  function draw(now){
+    const dt = Math.min(32, now-last); last=now;
+    targetScroll = window.scrollY || 0;
+    scrollY += (targetScroll-scrollY)*.075;
+
+    // Keep the hero clean. Activate the cinematic quantum effects only
+    // after the user reaches the second section.
+    const effectStart = Math.max(220, innerHeight * 0.30);
+    document.body.classList.toggle("qbytes-effects-active", scrollY > effectStart);
+
+    const s = scrollY / Math.max(1, document.documentElement.scrollHeight-innerHeight);
+    ctx.clearRect(0,0,w,h);
+
+    // Depth grid that shifts with page scroll.
+    const horizon = h*.58 - s*h*.16;
+    ctx.save();
+    ctx.globalAlpha = .18;
+    for(let i=-12;i<=12;i++){
+      const x = w/2 + i*w*.075;
+      line(w/2 + (x-w/2)*.18, horizon, x, h, .55);
+    }
+    for(let j=0;j<13;j++){
+      const t=j/12, y=horizon + Math.pow(t,1.7)*(h-horizon);
+      line(0,y,w,y,.38);
+    }
+    ctx.restore();
+
+    // Scroll-driven wave ribbon.
+    ctx.save();
+    ctx.globalAlpha=.34;
+    ctx.strokeStyle="rgba(90,130,255,.75)";
+    ctx.lineWidth=1.15;
+    for(let band=0;band<3;band++){
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=10){
+        const nx=x/w;
+        const y=h*(.35+band*.13)
+          + Math.sin(nx*12 + s*18 + band)*18
+          + Math.sin(nx*29 - s*11)*7
+          + (s-.5)*h*.22;
+        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Particle field with parallax.
+    for(const p of particles){
+      p.y -= p.speed*dt*.035;
+      if(p.y < -10) p.y = h+10;
+      const px = p.x + Math.sin(now*.00035*p.z+p.phase)*18*p.z;
+      const py = p.y + Math.sin(s*9+p.phase)*28*p.z;
+      const alpha = p.a*(.55+.45*Math.sin(now*.001+p.phase));
+      ctx.beginPath();
+      ctx.arc(px,py,p.r*p.z,0,Math.PI*2);
+      ctx.fillStyle=`rgba(75,210,255,${Math.max(.05,alpha)})`;
+      ctx.shadowColor="rgba(100,170,255,.8)";
+      ctx.shadowBlur=8;
+      ctx.fill();
+      ctx.shadowBlur=0;
+    }
+
+    // Central orbital/qubit motif; rotates as the page scrolls.
+    const cx=w*.78, cy=h*.22 + (s-.5)*h*.12;
+    const R=Math.min(w,h)*.13;
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(s*Math.PI*1.7);
+    for(let k=0;k<3;k++){
+      ctx.save();
+      ctx.rotate(k*Math.PI/3);
+      ctx.beginPath();
+      ctx.ellipse(0,0,R,R*.38,0,0,Math.PI*2);
+      ctx.strokeStyle=k===1?"rgba(190,100,255,.42)":"rgba(45,212,191,.38)";
+      ctx.lineWidth=1.2; ctx.stroke();
+      ctx.restore();
+    }
+    const qx=Math.cos(s*Math.PI*5)*R, qy=Math.sin(s*Math.PI*5)*R*.38;
+    ctx.beginPath();ctx.arc(qx,qy,5,0,Math.PI*2);
+    ctx.fillStyle="rgba(120,235,255,.95)";ctx.shadowColor="#62e8ff";ctx.shadowBlur=18;ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+
+  function reveal(){
+    const els=document.querySelectorAll("section, .hero, .flashcard-feature, .tutorial-section, .cta");
+    els.forEach(el=>el.classList.add("qbytes-reveal"));
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("qbytes-visible");});
+    },{threshold:.12});
+    els.forEach(el=>io.observe(el));
+  }
+
+  addEventListener("resize",resize,{passive:true});
+  resize(); reveal(); requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>

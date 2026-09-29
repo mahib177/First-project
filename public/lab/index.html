@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070b13">
+  <link rel="manifest" href="manifest.json">
+  <title>Carnage | Quantum Lab</title>
+  <link rel="icon" href="../assets/carnage-logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img class="logo" src="../assets/carnage-logo.png" alt="Carnage logo">
+    <div><h1>Quantum Lab</h1><span>Build, run, and understand circuits</span></div>
+  </div>
+  <div class="top-actions"><a class="profile-chip" id="labProfile" href="../index.html" hidden><span class="avatar" id="labAvatar">Q</span><span id="labProfileName">Profile</span></a>
+    <select id="connectionMode" hidden><option value="offline" selected>Offline</option></select>
+    <span id="connectionStatus" class="connection-status offline">🟢 Offline Mode</span>
+    <label class="mode">Execution
+      <select id="mode">
+        <option value="simulator">Ideal Simulator</option>
+        <option value="noisy">Noisy Simulator</option>
+      </select>
+    </label>
+    <button class="ghost" id="clearBtn">Clear</button>
+    <button class="ghost theme-btn" id="themeBtn" type="button" aria-label="Switch to light theme">☀ Light</button>
+    <button class="primary" id="runBtn">▶ Run Circuit</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="side-title">GATES</div>
+    <p class="muted">Drag a gate into a circuit slot.</p>
+    <div class="gate-library"><div class="gate-group"><h4>1-Qubit Gates</h4><div class="gate-grid"><div class="gate" draggable="true" data-gate="H"><b>H</b><span>Hadamard</span></div><div class="gate" draggable="true" data-gate="X"><b>X</b><span>Pauli-X</span></div><div class="gate" draggable="true" data-gate="Y"><b>Y</b><span>Pauli-Y</span></div><div class="gate" draggable="true" data-gate="Z"><b>Z</b><span>Pauli-Z</span></div><div class="gate" draggable="true" data-gate="S"><b>S</b><span>Phase</span></div><div class="gate" draggable="true" data-gate="T"><b>T</b><span>π/4</span></div><div class="gate" draggable="true" data-gate="RX"><b>Rx</b><span>X rotation</span></div><div class="gate" draggable="true" data-gate="RY"><b>Ry</b><span>Y rotation</span></div><div class="gate" draggable="true" data-gate="RZ"><b>Rz</b><span>Z rotation</span></div></div></div><div class="gate-group"><h4>2-Qubit Gates</h4><div class="gate-grid"><div class="gate gate-wide" draggable="true" data-gate="CX"><b>⊕</b><span>CNOT</span></div><div class="gate gate-wide" draggable="true" data-gate="SWAP"><b>⇄</b><span>SWAP</span></div><div class="gate gate-wide" draggable="true" data-gate="CZ"><b>◉</b><span>Controlled-Z</span></div></div></div><div class="gate-group gate-group-3"><h4>3-Qubit Gates</h4><div class="gate-grid"><div class="gate gate-wide" draggable="true" data-gate="TOFFOLI"><b>CCX</b><span>Toffoli</span></div><div class="gate gate-wide" draggable="true" data-gate="FREDKIN"><b>CSWAP</b><span>Fredkin</span></div><div class="gate gate-wide" draggable="true" data-gate="CCZ"><b>CCZ</b><span>CCZ</span></div></div></div><div class="gate-group gate-group-4"><h4>4-Qubit Gates</h4><div class="gate-grid"><div class="gate gate-wide" draggable="true" data-gate="MCX"><b>MCX</b><span>3-Control X</span></div><div class="gate gate-wide" draggable="true" data-gate="MCSWAP"><b>MCS</b><span>Multi-Control SWAP</span></div><div class="gate gate-wide" draggable="true" data-gate="MCZ"><b>MCZ</b><span>3-Control Z</span></div></div></div></div>
+
+    <div class="side-title space">SYSTEM</div>
+    <div class="field"><label>Qubits</label><select id="qubits"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+    <div class="field"><label>Shots</label><input id="shots" type="number" min="100" max="10000" step="100" value="1000"></div>
+
+    <div class="side-title space">ACTIONS</div>
+    <button class="side-btn" id="optimizeBtn">⚡ Optimize Circuit</button>
+    <button class="side-btn" id="downloadBtn">⬇ Download Circuit Actions</button>
+  </aside>
+
+  <main class="workspace">
+    <section class="panel circuit-panel">
+      <div class="panel-head">
+        <div><h2>Circuit Builder</h2><span>Click a slot to add/remove a single-qubit gate. Drag multi-qubit gates.</span></div>
+        <div class="row"><div class="status" id="status">Ready</div></div>
+      </div>
+      <div id="circuit" class="circuit"></div>
+    </section>
+
+    <section class="visual-grid">
+      <div class="panel">
+        <div class="panel-head"><div><h2>Measurement Probabilities</h2><span>Shot distribution</span></div><span id="shotSummary">1000 shots</span></div>
+        <div class="chart-box"><div class="chart-scroll"><canvas id="probChart"></canvas></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Q-Sphere</h2><span>State amplitudes on a 3D sphere</span></div></div>
+        <div id="qsphere" class="qsphere" title="Drag to rotate 360° · Scroll to zoom">
+  <canvas id="qsphereCanvas" class="sphere-canvas" aria-label="Interactive 3D Q-Sphere"></canvas>
+</div>
+        <div id="qsphereInfo" class="sphere-info"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Selected Qubit</h2><span>Interactive 3D Bloch sphere</span></div><select id="selectedQubit" class="mini-select"></select></div>
+        <div class="bloch-wrap">
+          <div class="bloch-stage" id="blochStage" title="Drag to rotate 360° · Scroll to zoom">
+            <canvas id="blochCanvas" class="sphere-canvas" aria-label="Interactive 3D Bloch Sphere"></canvas>
+          </div>
+          <div class="bloch-side">
+            <div class="bloch-controls" aria-label="Bloch sphere camera controls">
+              <button class="mini-view active" data-view="free">Rotate / Free View</button>
+              <button class="mini-view" data-view="reset">Reset</button>
+              <button class="mini-view" data-view="z">Z View</button>
+              <button class="mini-view" data-view="x">X View</button>
+              <button class="mini-view" data-view="y">Y View</button>
+            </div>
+            <div id="blochText" class="mono">q0: |0⟩</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel code-panel">
+      <div class="panel-head">
+        <div><h2>Quantum Code</h2><span>Readable Qiskit code from your circuit</span></div>
+        <div class="row">
+          <button class="ghost" id="exampleBtn">Example</button>
+          <button class="primary" id="compileBtn">Compile & Run</button>
+        </div>
+      </div>
+      <textarea id="codeEditor" spellcheck="false"></textarea>
+    </section>
+
+  </main>
+
+  <aside class="chat">
+    <div class="chat-head">
+      <div class="bot">Q</div>
+      <div><h2>Quantum AI</h2><span id="copilotModeText">Offline Quantum Assistant</span></div>
+    </div>
+
+    <div class="copilot-tools">
+      <button class="copilot-tool active" data-action="build">⚛ Build</button>
+      <button class="copilot-tool" data-action="explain">🧠 Explain</button>
+      <button class="copilot-tool" data-action="debug">🐞 Debug</button>
+      <button class="copilot-tool" data-action="optimize">⚡ Optimize</button>
+      <button class="copilot-tool" data-action="teach">🎓 Teach</button>
+    </div>
+
+    <div id="messages" class="messages">
+      <div class="msg bot-msg">I'm your Quantum AI assistant.<br><br>Try <b>"Create a Bell state"</b>, <b>"Explain this circuit"</b>, <b>"Debug my circuit"</b> or <b>"Teach me entanglement"</b>.</div>
+    </div>
+
+    <div class="quick">
+      <button data-prompt="Create a Bell state">Bell</button>
+      <button data-prompt="Create a 3 qubit GHZ state">GHZ</button>
+      <button data-prompt="Use X on q0">X on q0</button>
+      <button data-prompt="Explain this circuit">Explain</button>
+      <button data-prompt="Optimize my circuit">Optimize</button>
+    </div>
+
+    <div class="chat-input"><input id="chatInput" placeholder="Ask Quantum AI..."><button id="sendBtn">➤</button></div>
+  </aside>
+</div>
+
+<div id="toast" class="toast"></div>
+<button id="explainBtn" hidden type="button"></button>
+<div id="explanation" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

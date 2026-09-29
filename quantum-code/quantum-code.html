@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Code</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap');
+
+:root {
+    --bg: #f7f5ff;
+    --panel: #ffffff;
+    --ink: #171323;
+    --muted: #706b7d;
+    --violet: #7c3aed;
+    --violet-dark: #5b21b6;
+    --line: #e7e1f3;
+    --output: #111018;
+    --good: #15803d;
+    --bad: #b91c1c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top right, rgba(124,58,237,.12), transparent 35%),
+        var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+}
+
+.wrap {
+    width: min(1150px, 92%);
+    margin: auto;
+}
+
+nav {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.back {
+    text-decoration: none;
+    color: var(--violet);
+    font-weight: 700;
+}
+
+header {
+    padding: 45px 0 25px;
+}
+
+.eyebrow {
+    color: var(--violet);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 8px 0;
+    font-size: clamp(38px, 6vw, 64px);
+    line-height: 1;
+}
+
+header p {
+    color: var(--muted);
+    font-size: 17px;
+}
+
+.code-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 18px 50px rgba(50, 30, 90, .08);
+    margin-bottom: 30px;
+}
+
+.editor-top,
+.output-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.editor-title,
+.output-title {
+    font-weight: 800;
+}
+
+.status {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+textarea {
+    width: 100%;
+    min-height: 420px;
+    resize: vertical;
+    border: 1px solid #302b3b;
+    border-radius: 15px;
+    padding: 22px;
+    background: #17151f;
+    color: #f5f3ff;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    line-height: 1.7;
+    outline: none;
+    tab-size: 4;
+}
+
+textarea:focus {
+    border-color: var(--violet);
+    box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+}
+
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.run-btn {
+    border: none;
+    background: var(--violet);
+    color: white;
+    padding: 13px 27px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.run-btn:hover {
+    background: var(--violet-dark);
+    transform: translateY(-1px);
+}
+
+.run-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.output {
+    min-height: 180px;
+    max-height: 450px;
+    overflow: auto;
+    background: var(--output);
+    color: #f4f1ff;
+    border-radius: 15px;
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+}
+
+.output.error {
+    color: #ff8c8c;
+}
+
+.footer-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 15px 0 35px;
+}
+
+@media (max-width: 700px) {
+    nav {
+        height: 65px;
+    }
+
+    header {
+        padding-top: 30px;
+    }
+
+    .code-card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    textarea {
+        min-height: 350px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+    <nav>
+        <a class="brand" href="#">⚛️ Quantum Code</a>
+        <a class="back" href="../index.html">← Back</a>
+    </nav>
+
+    <header>
+        <div class="eyebrow">Quantum Computing • Code</div>
+        <h1>Quantum Code</h1>
+        <p>
+            Write your Python / Qiskit code and run it directly.
+        </p>
+    </header>
+
+    <main>
+
+        <section class="code-card">
+
+            <div class="editor-top">
+                <div class="editor-title">Python / Qiskit</div>
+                <div class="status" id="status">Ready</div>
+            </div>
+
+            <textarea
+                id="code"
+                spellcheck="false"
+                placeholder="Write your Qiskit code here..."></textarea>
+
+            <div class="controls">
+                <button class="run-btn" id="runBtn">
+                    ▶ Run
+                </button>
+            </div>
+
+        </section>
+
+        <section class="code-card">
+
+            <div class="output-top">
+                <div class="output-title">Output</div>
+            </div>
+
+            <pre class="output" id="output">Run your code to see the output...</pre>
+
+        </section>
+
+    </main>
+
+    <div class="footer-note">
+        ⚛️ Quantum Code Environment
+    </div>
+
+</div>
+
+<script>
+
+const code = document.getElementById("code");
+const output = document.getElementById("output");
+const runBtn = document.getElementById("runBtn");
+const statusText = document.getElementById("status");
+
+runBtn.addEventListener("click", runCode);
+
+async function runCode() {
+
+    const userCode = code.value.trim();
+
+    if (!userCode) {
+        output.className = "output error";
+        output.textContent = "Please write some Python/Qiskit code first.";
+        return;
+    }
+
+    runBtn.disabled = true;
+    runBtn.textContent = "⏳ Running...";
+    statusText.textContent = "Executing...";
+
+    output.className = "output";
+    output.textContent = "Running your Qiskit code...";
+
+    try {
+
+        const response = await fetch("http://127.0.0.1:5000/run", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                code: userCode
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            output.className = "output";
+            output.textContent = data.output || "(No output)";
+            statusText.textContent = "Finished ✓";
+        } else {
+            output.className = "output error";
+            output.textContent = data.error || "An error occurred.";
+            statusText.textContent = "Error";
+        }
+
+    } catch (error) {
+
+        output.className = "output error";
+
+        output.textContent =
+            "Could not connect to the Qiskit Python server.\n\n" +
+            "Make sure server.py is running.";
+
+        statusText.textContent = "Server offline";
+
+    }
+
+    runBtn.disabled = false;
+    runBtn.textContent = "▶ Run";
+}
+
+</script>
+
+</body>
+</html>
